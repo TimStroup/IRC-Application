@@ -13,4 +13,4 @@ class InputParser{
     private:
         vector <string> tokens;
 
-}
+};

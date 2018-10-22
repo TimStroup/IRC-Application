@@ -6,10 +6,7 @@
 #include <memory> 
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
-<<<<<<< HEAD
-=======
 #include "inputParser.h"
->>>>>>> dc441a7e0a0335b76ee4b61696eddb23e51d3a5c
 
 using namespace std;
 
@@ -62,10 +59,6 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
 
 int main(int argc, char * argv[])
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> dc441a7e0a0335b76ee4b61696eddb23e51d3a5c
     cout << "Initializing Socket" << std::endl; 
     cs457::tcpServerSocket mysocket(2000);
     cout << "Binding Socket" << std::endl; 

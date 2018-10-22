@@ -1,5 +1,5 @@
 //input parser written by iain on stack overflow, link: https://stackoverflow.com/questions/865668/how-to-parse-command-line-arguments-in-c
-#include "inputParse.h"
+#include "inputParser.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ class InputParser{
         /// @author iain
         const string& getCmdOption(const string &option) const{
             vector<string>::const_iterator itr;
-            itr =  find(this->tokens.begin(), this->tokens.end(), option);
+            itr =  find (this->tokens.begin(), this->tokens.end(), option);
             if (itr != this->tokens.end() && ++itr != this->tokens.end()){
                 return *itr;
             }
@@ -21,7 +21,7 @@ class InputParser{
         }
         /// @author iain
         bool cmdOptionExists(const string &option) const{
-            return find(this->tokens.begin(), this->tokens.end(), option)
+            return find (this->tokens.begin(), this->tokens.end(), option)
                    != this->tokens.end();
         }
     private:
