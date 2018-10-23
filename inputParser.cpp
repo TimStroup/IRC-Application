@@ -1,8 +1,10 @@
 //input parser written by iain on stack overflow, link: https://stackoverflow.com/questions/865668/how-to-parse-command-line-arguments-in-c
 #include "inputParser.h"
+#include <string>
+#include <vector>  
+#include <algorithm>
 
 using namespace std;
-
 class InputParser{
     public:
         InputParser (int &argc, char **argv){
