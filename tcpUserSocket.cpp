@@ -5,11 +5,27 @@
 
 using namespace std; 
 
-cs457::tcpUserSocket::tcpUserSocket() {};
+cs457::tcpUserSocket::tcpUserSocket(string srvrAddress, int port) 
+{
+    tcpUserSocket::userSocket = socket(AF_INET,SOCK_STREAM,0);
+
+    memset(&(tcpUserSocket::serverAddress),'0',sizeof(tcpUserSocket::serverAddress));
+    tcpUserSocket::serverAddress.sin_family = AF_INET;
+    tcpUserSocket::serverAddress.sin_port = htons(port);
+
+    inet_pton(AF_INET,srvrAddress.c_str,&(tcpUserSocket::serverAddress));
+};
 
 void cs457::tcpUserSocket::setSocket(int sckt)  
 { 
     userSocket=sckt;
+};
+
+int cs457::tcpUserSocket::connectToServer()
+{
+    struct sockaddr* serverPointer = tcpUserSocket::getServerAddressPointer();
+
+    return connect(tcpUserSocket::userSocket,serverPointer,sizeof(serverPointer));
 };
 
 
@@ -76,7 +92,7 @@ ssize_t cs457::tcpUserSocket::sendString(const string & data, bool useMutex)
     }
 
     return rval;
-}
+};
 
 string cs457::tcpUserSocket::getUniqueIdentifier()
 { 
@@ -91,3 +107,8 @@ struct sockaddr * cs457::tcpUserSocket::getAddressPointer()
 {
     return ((struct sockaddr *) &userAddress);
 };
+
+struct sockaddr * cs457::tcpUserSocket::getServerAddressPointer()
+{
+    return ((struct sockaddr *) &serverAddress);
+}
