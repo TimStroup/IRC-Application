@@ -1,3 +1,4 @@
+#pragma once
 #include "tcpUserSocket.h"
 #include <string>
 #include "inputParser.cpp"
@@ -21,6 +22,6 @@ using namespace std;
         string logFile;
         string password;
 
-        cs457::tcpUserSocket tcpUserSocket;
+        cs457::tcpUserSocket tcpUserSocket(string server,int port);
 
     };

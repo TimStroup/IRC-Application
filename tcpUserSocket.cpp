@@ -2,18 +2,19 @@
 #include <memory> 
 #include <cstring> 
 #include <mutex> 
+#include <iostream>
 
 using namespace std; 
 
-cs457::tcpUserSocket::tcpUserSocket(string srvrAddress, int port) 
+cs457::tcpUserSocket::tcpUserSocket(const string srvrAddress, int port) 
 {
-    tcpUserSocket::userSocket = socket(AF_INET,SOCK_STREAM,0);
-
+    tcpUserSocket::userSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+    cout << userSocket << endl;
     memset(&(tcpUserSocket::serverAddress),'0',sizeof(tcpUserSocket::serverAddress));
     tcpUserSocket::serverAddress.sin_family = AF_INET;
     tcpUserSocket::serverAddress.sin_port = htons(port);
 
-    inet_pton(AF_INET,srvrAddress.c_str,&(tcpUserSocket::serverAddress));
+    cout << inet_pton(AF_INET,"127.0.0.1",&tcpUserSocket::serverAddress.sin_addr) << endl;
 };
 
 void cs457::tcpUserSocket::setSocket(int sckt)  
@@ -25,7 +26,7 @@ int cs457::tcpUserSocket::connectToServer()
 {
     struct sockaddr* serverPointer = tcpUserSocket::getServerAddressPointer();
 
-    return connect(tcpUserSocket::userSocket,serverPointer,sizeof(serverPointer));
+    return connect(tcpUserSocket::userSocket,(struct sockaddr*)&(tcpUserSocket::serverAddress),sizeof(tcpUserSocket::serverAddress));
 };
 
 
