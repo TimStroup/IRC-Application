@@ -1,8 +1,9 @@
 //input parser written by iain on stack overflow, link: https://stackoverflow.com/questions/865668/how-to-parse-command-line-arguments-in-c
-#include "inputParser.h"
+//#include "inputParser.h"
 #include <string>
 #include <vector>  
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 class InputParser{
@@ -30,14 +31,3 @@ class InputParser{
         vector <string> tokens;
 };
 
-int main(int argc, char **argv){
-    InputParser input(argc, argv);
-    if(input.cmdOptionExists("-h")){
-        // Do stuff
-    }
-    const string &filename = input.getCmdOption("-f");
-    if (!filename.empty()){
-        // Do interesting things ...
-    }
-    return 0;
-}

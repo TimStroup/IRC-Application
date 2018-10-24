@@ -1,18 +1,26 @@
-#include "inputParser.h"
 #include "tcpUserSocket.h"
-
+#include <string>
+#include "inputParser.cpp"
 
 using namespace std; 
     class chatClient{
     public:
-    void setNickname(string& nickname);
-    const string& getNickname();
-    
-
+        chatClient();
+        chatClient(string& hostname, string& nickname, int port,
+                    string& configFile, string& testFile, string& logFile);
+        void setNickname(string& nickname);
+        void setCmdFields(InputParser input);
+        const string& getNickname();
 
     private:
-    string nickName;
-    string password;
-    tcpUserSocket tcpUserSocket;
+        string hostname;
+        string nickname;
+        int port;
+        string confFile;
+        string testFile;
+        string logFile;
+        string password;
+
+        cs457::tcpUserSocket tcpUserSocket;
 
     };
