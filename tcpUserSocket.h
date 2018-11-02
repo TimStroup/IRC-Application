@@ -20,11 +20,12 @@ namespace cs457
     {
         public:
             tcpUserSocket(string srvrAddress,int port);
+            tcpUserSocket();
             void setSocket(int skct); 
             struct sockaddr * getAddressPointer();
             socklen_t getLenghtPointer();
             int getSocket(); 
-            int closeSocket(); 
+            int closeSocket();
             std::tuple<string,ssize_t> recvString(int bufferSize=4096,bool useMutex = true);
             void setUserInfoIPv4(string clientAddress,uint16_t port);
             int connectToServer();

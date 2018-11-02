@@ -17,6 +17,10 @@ cs457::tcpUserSocket::tcpUserSocket(const string srvrAddress, int port)
     cout << inet_pton(AF_INET,"127.0.0.1",&tcpUserSocket::serverAddress.sin_addr) << endl;
 };
 
+cs457::tcpUserSocket::tcpUserSocket(){
+
+};
+
 void cs457::tcpUserSocket::setSocket(int sckt)  
 { 
     userSocket=sckt;
