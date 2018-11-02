@@ -1,4 +1,5 @@
 #include "tcpUserSocket.h"
+#include "commandManager.h"
 #include <memory> 
 #include <cstring> 
 #include <mutex> 
@@ -72,7 +73,7 @@ std::tuple<string,ssize_t> cs457::tcpUserSocket::recvString(int bufferSize, bool
         recvMsgSize = recv(userSocket, stringBuffer, bufferSize, 0); 
     }
     
-    
+    cout << string(stringBuffer) << endl;
    
     return make_tuple(string(stringBuffer),recvMsgSize);     
 };
