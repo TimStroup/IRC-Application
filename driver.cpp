@@ -6,7 +6,7 @@
 #include <memory> 
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
-#include "commandManager.h"
+#include "commandManager.cpp"
 
 using namespace std;
 
@@ -24,7 +24,9 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
         tie(msg,val) = clientSocket.get()->recvString();
         if (msg.substr(0,4) == "EXIT")
             cont = false; 
-       
+        
+        vector<string> testVector;
+        commandManager1.handleCommand(msg, testVector);
         cout << "[SERVER] The client is sending message " << msg << " -- With value return = " << val << endl;
         string s =  "[SERVER REPLY] The client is sending message:" + msg  + "\n"; 
         thread childT1(&cs457::tcpUserSocket::sendString,clientSocket.get(),s,true);
