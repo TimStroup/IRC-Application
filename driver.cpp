@@ -6,6 +6,7 @@
 #include <memory> 
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
+#include "commandManager.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ bool ready = true;
 
 int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
 {
-
+    commandManager commandManager1;
     cout << "Waiting for message from Client Thread" << id << std::endl;
     string msg;
     ssize_t val;

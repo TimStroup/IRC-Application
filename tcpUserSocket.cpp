@@ -1,5 +1,4 @@
 #include "tcpUserSocket.h"
-#include "commandManager.h"
 #include <memory> 
 #include <cstring> 
 #include <mutex> 
@@ -58,7 +57,6 @@ void cs457::tcpUserSocket::setUserInfoIPv4(string address, uint16_t port)
 
 std::tuple<string,ssize_t> cs457::tcpUserSocket::recvString(int bufferSize, bool useMutex)
 {
-    commandManager::commandManager commandManager1;
     char stringBuffer[bufferSize]; 
     memset(stringBuffer, 0, sizeof(stringBuffer));    //change made here. Zeros out buffer.
 
@@ -74,8 +72,6 @@ std::tuple<string,ssize_t> cs457::tcpUserSocket::recvString(int bufferSize, bool
         recvMsgSize = recv(userSocket, stringBuffer, bufferSize, 0); 
     }
     
-    
-   
     return make_tuple(string(stringBuffer),recvMsgSize);     
 };
         
