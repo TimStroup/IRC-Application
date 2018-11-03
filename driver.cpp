@@ -7,6 +7,7 @@
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
 #include "commandManager.cpp"
+#include "Parsing.cpp"
 
 using namespace std;
 
