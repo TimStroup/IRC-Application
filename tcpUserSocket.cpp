@@ -72,8 +72,6 @@ std::tuple<string,ssize_t> cs457::tcpUserSocket::recvString(int bufferSize, bool
         recvMsgSize = recv(userSocket, stringBuffer, bufferSize, 0); 
     }
     
-    
-   
     return make_tuple(string(stringBuffer),recvMsgSize);     
 };
         

@@ -7,6 +7,7 @@ class commandManager
 {
   public:
     commandManager();
+    commandManager(string&);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:
