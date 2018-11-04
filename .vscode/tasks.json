@@ -9,12 +9,13 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "tcpUserSocket.cpp", "tcpServerSocket.cpp", "driver.cpp", "-pthread", "-o", "driver.out", "&&", "./driver.out"
+                "-g", "tcpUserSocket.cpp", "tcpServerSocket.cpp", "driver.cpp", "-pthread", "-o", "server.out", "&&",
+                "g++","-g", "chatClient.cpp", "tcpUserSocket.cpp", "inputParser.cpp", "-o", "client.out"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
-        }   
+        }  
     ]
 }

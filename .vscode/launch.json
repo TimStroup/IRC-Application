@@ -9,7 +9,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/driver.out",
+            "program": "${workspaceRoot}/server.out",
             "args": [],
             "cwd": "${workspaceFolder}",
             "environment": [],
