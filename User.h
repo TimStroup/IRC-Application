@@ -18,5 +18,5 @@ class User
         string nickName;
         string password;
         cs457::tcpUserSocket *socketConnection;
-
+        
 };

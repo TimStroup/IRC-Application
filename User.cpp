@@ -5,11 +5,11 @@ User::User(){
 }
 
 void User::setNick(const string nick){
-
+    nickName = nick;
 }
 
 void User::setPass(const string pass){
-
+    password = pass;
 }
 
 void User::setTcpUserSocket(cs457::tcpUserSocket *socket){
@@ -21,7 +21,12 @@ cs457::tcpUserSocket& User::getTcpUserSocket(){
 }
 
 bool User::checkPass(const string passAttempt){
-
+    if(password == passAttempt){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 
