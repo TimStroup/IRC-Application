@@ -7,31 +7,48 @@
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
 #include "commandManager.cpp"
+#include "User.cpp"
 
 using namespace std;
 
 bool ready = true; 
 
-int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
+int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 {
-    commandManager commandManager1;
-    cout << "Waiting for message from Client Thread" << id << std::endl;
+    //User Stuff
+    string tempNick = "Guest" + to_string(id);
+    User clientUser(tempNick, clientSocket);
+
+    //Create Command Manager for this cclient to handle the incoming messages/commands
+    commandManager commandManager1(&clientUser);
+    cout << "Client [NICK] is: " << clientUser.getNick() << std::endl;
+    
+    //Variable Allocations
     string msg;
     ssize_t val;
-    bool cont =true ;  
+    bool cont = true;
+
+    //The main code of this server, reads in a message from the client and stores it as
+    // a string called "msg". msg is then passed to the commandManager to process the message.
+    // commandManager.handleCommand then returns a boolean on whether or not to continue the
+    // while loop.  
     while (cont) 
     {
         tie(msg,val) = clientSocket.get()->recvString();
-        if (msg.substr(0,4) == "EXIT")
-            cont = false; 
         
         // Adding a carriage return to help with the parameter parsing
         msg.push_back('\r');
 
         vector<string> testVector;
-        commandManager1.handleCommand(msg, testVector);
-        cout << "[SERVER] The client is sending message " << msg << endl;
-        string s =  "[SERVER REPLY] The client is sending message:" + msg  + "\n"; 
+        cont = commandManager1.handleCommand(msg, testVector);
+
+        //TALK TO TIM ABOUT THIS
+        cout << "CLIENTUSER: " << clientUser.getNick() << endl;
+        cout << "CommandManager: " << commandManager1.clientUser->getNick() << endl;
+        //clientUser = commandManager1.clientUser;
+
+        cout << "[SERVER] CLIENT [" << clientUser.getNick() << "] sent message: " << msg << endl;
+        string s =  "[SERVER REPLY] You sent: " + msg  + "\n"; 
         thread childT1(&cs457::tcpUserSocket::sendString,clientSocket.get(),s,true);
         //thread childT2(&cs457::tcpUserSocket::sendString,clientSocket.get(),msg,true);
         //thread childT3(&cs457::tcpUserSocket::sendString,clientSocket.get(),"\n",true);
@@ -41,24 +58,13 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
         //childT3.join(); 
         //clientSocket.get()->sendString(msg); 
         //clientSocket.get()->sendString("\n"); 
-         if (msg.substr(0,6) == "SERVER")
-        {
-            thread childTExit(&cs457::tcpUserSocket::sendString,clientSocket.get(),"GOODBYE EVERYONE",false);
-            thread childTExit2(&cs457::tcpUserSocket::sendString,clientSocket.get(),"\n",false);
-            ready = false;   
-            cont = false;   
-            childTExit.join(); 
-            childTExit2.join();
-        }
-        else
-        {
-            cout << "waiting for another message" << endl; 
-        }
+
     }
 
-    clientSocket.get()->sendString("goodbye"); 
+    //clientSocket.get()->sendString("goodbye"); 
     
-    clientSocket.get()->closeSocket(); 
+    clientSocket.get()->closeSocket();
+    cout << "I closed the socket" << endl;
     return 1; 
 }
 
@@ -81,14 +87,11 @@ int main(int argc, char * argv[])
         tie(clientSocket,val) = mysocket.acceptSocket();
         cout << "value for accept is " << val << std::endl; 
         cout << "Socket Accepted" << std::endl; 
-        unique_ptr<thread> t = make_unique<thread>(cclient,clientSocket,id); 
+        unique_ptr<thread> t = make_unique<thread>(cclient,clientSocket,id);
         threadList.push_back(std::move(t)); 
-        
         id++; //not the best way to go about it. 
        // threadList.push_back(t); 
-       
-    
-        
+           
     }
 
     for (auto& t: threadList)
@@ -96,7 +99,7 @@ int main(int argc, char * argv[])
         t.get()->join();
     }
     
-        
+    
     cout << "Server is shutting down after one client" << endl; 
     return 0; 
 }
