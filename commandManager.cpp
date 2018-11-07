@@ -1,4 +1,5 @@
 #include "commandManager.h"
+#include <time.h>
 #include "Parsing.cpp"
 #include <iostream>
 #include <vector>
@@ -93,7 +94,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::silence();
     }
     else if(commandString == "TIME") {
-        return commandManager::time();
+        return commandManager::time(messageParameters);
     }
     else if(commandString == "TOPIC") {
         return commandManager::topic();
@@ -227,7 +228,8 @@ bool commandManager::privmsg(vector<string>messageParameters) {
         //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
         if(index != -1) {
             cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
-            targetSocket.sendString(msg);
+            string finalMessage = "[" + clientUser->getNick() + "]: " + msg; 
+            targetSocket.sendString(finalMessage);
         }else {
             cout << "User does not exist" << endl;
             clientUser->socketConnection->sendString("User does not exist");
@@ -240,6 +242,7 @@ bool commandManager::privmsg(vector<string>messageParameters) {
     return true;
 }
 bool commandManager::quit(vector<string>messageParameters) {
+    cout << "Quit command called" << endl;
     clientUser->socketConnection->sendString("QUIT");
     return false;
     
@@ -261,9 +264,16 @@ bool commandManager::silence() {
     cout << "Silence() command called" << endl;
 
 }
-bool commandManager::time() {
-    cout << "Time() command called" << endl;
+bool commandManager::time(vector<string> messageParameters) {
+    time_t timer;
 
+    std::time(&timer);
+    string currentTime(ctime(&timer));
+
+    string finalMessage = "[SERVER REPLY] Current Time is: " + currentTime;
+    clientUser->socketConnection->sendString(finalMessage);
+
+    return true;
 }
 bool commandManager::topic() {
     cout << "Topic() command called" << endl;

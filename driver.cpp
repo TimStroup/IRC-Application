@@ -25,7 +25,6 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 
     //Create Command Manager for this cclient to handle the incoming messages/commands
     commandManager commandManager1(&clientUser, &chatClientUsers);
-    cout << "Client [NICK] is: " << clientUser.getNick() << std::endl;
     
     //Variable Allocations
     string msg;

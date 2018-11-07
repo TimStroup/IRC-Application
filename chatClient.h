@@ -6,11 +6,13 @@
 using namespace std; 
     class chatClient{
     public:
+        string status;
         chatClient();
         chatClient(string& hostname, string& nickname, int port,
                     string& configFile, string& testFile, string& logFile);
         void setNickname(string& nickname);
         void setCmdFields(InputParser input);
+        void receiveMessages(cs457::tcpUserSocket*);
         const string& getNickname();
 
     private:

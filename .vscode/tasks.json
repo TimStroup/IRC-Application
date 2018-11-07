@@ -10,7 +10,7 @@
             "command": "g++",
             "args": [
                 "-g", "tcpUserSocket.cpp", "tcpServerSocket.cpp", "driver.cpp", "-pthread", "-o", "server.out", "&&",
-                "g++","-g", "chatClient.cpp", "tcpUserSocket.cpp", "inputParser.cpp", "-o", "client.out"
+                "g++","-g", "chatClient.cpp", "tcpUserSocket.cpp", "inputParser.cpp", "-pthread", "-o", "client.out"
             ],
             "group": {
                 "kind": "build",

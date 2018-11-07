@@ -199,7 +199,7 @@ class commandManager
         Syntax: TIME [<server>]
         Returns the local time on the current server, or <server> if specified.
         */
-    bool time();
+    bool time(vector<string>);
 
     /*
         Syntax: TOPIC <channel> [<topic>]
