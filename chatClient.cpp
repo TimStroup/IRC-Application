@@ -2,6 +2,7 @@
 #include "tcpUserSocket.h"
 #include <iostream>
 #include <errno.h>
+#include <thread>
 
 using namespace std;
 
@@ -42,19 +43,28 @@ int main(int argc, char **argv){
     const string &filename = input.getCmdOption("-f");
     cs457::tcpUserSocket *socket = new cs457::tcpUserSocket("127.0.0.1",2000);
 
-    cout << socket->connectToServer() << endl;
     int ready = 1;
-     char* message = new char[512];
+    cout << socket->connectToServer() << endl;
+    char* message = new char[512];
+    string recvMessage;
+    ssize_t val;
+    //thread readThread(socket);
+    //thread writeThread(socket);
     while(ready == 1){
-       
         cin.getline(message,512);
-        if(message[0] == 'Q')
-            ready = 0;
         socket->sendString(message,true);
+        tie(recvMessage,val) = socket->recvString();
+        if(recvMessage == "QUIT") {
+            ready = 0;
+        } else {
+            cout << recvMessage << endl;
+        }
     }
+    
     if (!filename.empty()){
         // Do interesting things ...
     }
+    
     delete socket;
     delete message;
     return 0;

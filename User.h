@@ -7,16 +7,18 @@ class User
 {
     public:
         User();
+        User(const string nick, shared_ptr<cs457::tcpUserSocket> socket);
         void setNick(const string nick);
         void setPass(const string pass);
         bool checkPass(const string passAttempt);
         const string getNick();
-        void setTcpUserSocket(cs457::tcpUserSocket *socket);
+        void setTcpUserSocket(shared_ptr<cs457::tcpUserSocket> socket);
         cs457::tcpUserSocket& getTcpUserSocket();
+        cs457::tcpUserSocket *socketConnection;
+
     
     private:
         string nickName;
         string password;
-        cs457::tcpUserSocket *socketConnection;
         
 };

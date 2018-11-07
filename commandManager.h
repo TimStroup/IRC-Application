@@ -1,13 +1,14 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "User.h"
 
 using namespace std;
 class commandManager
 {
   public:
-    commandManager();
-    commandManager(string&);
+    User* clientUser;
+    commandManager(User* user);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:
@@ -114,7 +115,7 @@ class commandManager
         NICK <nickname> (RFC 2812)
         Allows a client to change their IRC nickname.
         */
-    bool nick();
+    bool nick(vector<string> parameters);
 
     /*
         Syntax: NOTICE <msgtarget> <message>
@@ -163,7 +164,7 @@ class commandManager
         Syntax: QUIT [<message>]
         Disconnects the user from the server.
         */
-    bool quit();
+    bool quit(vector<string>);
 
     /*
         Syntax: RESTART
