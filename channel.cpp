@@ -1,22 +1,22 @@
-#include "chatRoom.h"
+#include "channel.h"
 
 using namespace std;
 
 channel::channel(string name){
-    chatRoom::name = name;
+    channel::name = name;
 };
 
 string channel::getName(){
 
-    return chatRoom::name;
+    return channel::name;
 };
 
 void channel::setTopic(string topic){
-    chatRoom::topic = topic;
+    channel::topic = topic;
 };
 
 void channel::addUser(User *user){
-    chatRoom::channelParticipants.push_back(user);
+    channel::channelParticipants.push_back(user);
 };
 
 void channel::removeUser(string nickName){
