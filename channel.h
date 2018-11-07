@@ -4,10 +4,10 @@
 #include "User.h"
 
 using namespace std;
-class chatRoom
+class channel
 {
     public: 
-    chatRoom(string name);
+    channel(string name);
     string getName();
     void setTopic(string topic);
     void addUser(User *user);
@@ -16,5 +16,5 @@ class chatRoom
     private:
     string name;
     string topic;
-    vector<User *> chatRoomParticipants;
+    vector<User *> channelParticipants;
 };
