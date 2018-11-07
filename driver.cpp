@@ -12,6 +12,7 @@
 using namespace std;
 
 bool ready = true; 
+vector<User*> chatClientUsers;
 
 int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 {
@@ -19,8 +20,11 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     string tempNick = "Guest" + to_string(id);
     User clientUser(tempNick, clientSocket);
 
+    //Add this client to the Server's vector of clients
+    chatClientUsers.push_back(&clientUser);
+
     //Create Command Manager for this cclient to handle the incoming messages/commands
-    commandManager commandManager1(&clientUser);
+    commandManager commandManager1(&clientUser, &chatClientUsers);
     cout << "Client [NICK] is: " << clientUser.getNick() << std::endl;
     
     //Variable Allocations
@@ -41,11 +45,6 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 
         vector<string> testVector;
         cont = commandManager1.handleCommand(msg, testVector);
-
-        //TALK TO TIM ABOUT THIS
-        cout << "CLIENTUSER: " << clientUser.getNick() << endl;
-        cout << "CommandManager: " << commandManager1.clientUser->getNick() << endl;
-        //clientUser = commandManager1.clientUser;
 
         cout << "[SERVER] CLIENT [" << clientUser.getNick() << "] sent message: " << msg << endl;
         string s =  "[SERVER REPLY] You sent: " + msg  + "\n"; 
