@@ -5,8 +5,9 @@
 
 using namespace std;
 
-commandManager::commandManager(User* clientUser1) {
+commandManager::commandManager(User* clientUser1, vector<User*>* chatClientUsers1) {
     commandManager::clientUser = clientUser1;
+    commandManager::chatClientUsers = chatClientUsers1;
 }
 
 bool commandManager::handleCommand(const string &command, vector<string> parameters) {
@@ -74,7 +75,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::pong();
     }
     else if(commandString == "PRIVMSG") {
-        return commandManager::privmsg();
+        return commandManager::privmsg(messageParameters);
     }
     else if(commandString == "QUIT") {
         return commandManager::quit(messageParameters);
@@ -205,9 +206,38 @@ bool commandManager::pong() {
     cout << "Pong() command called" << endl;
 
 }
-bool commandManager::privmsg() {
-    cout << "Privmsg() command called" << endl;
+bool commandManager::privmsg(vector<string>messageParameters) {
+    
+    //Check if there is both a User to send to, and a message to send, thus size = 2
+    if(messageParameters.size() >= 2) {
+        string targetClient = messageParameters.at(0);
+        string msg = messageParameters.at(1);
 
+        int index = -1; //Default to -1 so that we can check for whether the user exist or not
+
+        //Loop through all the current chat client users and see if the nick passed in
+        //is connected or not.
+        for(int i = 0; i < chatClientUsers->size(); i++) {
+            if(chatClientUsers->at(i)->getNick() == targetClient) {
+                index = i;
+            }
+        }
+
+        //If the nick was found, the index was updated to point to their location in the
+        //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
+        if(index != -1) {
+            cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
+            targetSocket.sendString(msg);
+        }else {
+            cout << "User does not exist" << endl;
+            clientUser->socketConnection->sendString("User does not exist");
+        }
+
+    } else {
+        cout << "Invalid number of parameters passed in for PRIVMSG" << endl;
+    }
+
+    return true;
 }
 bool commandManager::quit(vector<string>messageParameters) {
     clientUser->socketConnection->sendString("QUIT");

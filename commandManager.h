@@ -8,7 +8,8 @@ class commandManager
 {
   public:
     User* clientUser;
-    commandManager(User* user);
+    vector<User*>* chatClientUsers;
+    commandManager(User* user, vector<User*>* chatClientUsers);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:
@@ -158,7 +159,7 @@ class commandManager
         Syntax: PRIVMSG <msgtarget> <message>
         Sends <message> to <msgtarget>, which is usually a user or channel
         */
-    bool privmsg();
+    bool privmsg(vector<string>);
 
     /*
         Syntax: QUIT [<message>]
