@@ -6,13 +6,15 @@
 #include <memory> 
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
-#include "commandManager.cpp"
-#include "User.cpp"
+#include "commandManager.h"
+#include "User.h"
+#include "channel.h"
 
 using namespace std;
 
 bool ready = true; 
 vector<User*> chatClientUsers;
+vector<channel*> channels;
 
 int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 {
@@ -24,7 +26,7 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     chatClientUsers.push_back(&clientUser);
 
     //Create Command Manager for this cclient to handle the incoming messages/commands
-    commandManager commandManager1(&clientUser, &chatClientUsers);
+    commandManager commandManager1(&clientUser, &chatClientUsers, &channels);
     
     //Variable Allocations
     string msg;

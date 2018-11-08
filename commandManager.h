@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "User.h"
+#include "channel.h"
 
 using namespace std;
 class commandManager
@@ -9,7 +10,8 @@ class commandManager
   public:
     User* clientUser;
     vector<User*>* chatClientUsers;
-    commandManager(User* user, vector<User*>* chatClientUsers);
+    vector<channel*>* channels;
+    commandManager(User* user, vector<User*>* chatClientUsers, vector<channel*>* activeUsers);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:
@@ -73,7 +75,7 @@ class commandManager
         Makes the client join the channels in the comma-separated list <channels>, specifying the passwords, if needed, in the comma-separated list <keys>.
         If the channel(s) do not exist then they will be created. 
         */
-    bool join();
+    bool join(vector<string>);
 
     /*
         Syntax: KICK <channel> <client> [<message>]

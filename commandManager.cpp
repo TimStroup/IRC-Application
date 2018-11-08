@@ -1,14 +1,16 @@
 #include "commandManager.h"
 #include <time.h>
-#include "Parsing.cpp"
+#include "Parsing.h"
 #include <iostream>
 #include <vector>
+#include "channel.h"
 
 using namespace std;
 
-commandManager::commandManager(User* clientUser1, vector<User*>* chatClientUsers1) {
+commandManager::commandManager(User* clientUser1, vector<User*>* chatClientUsers1, vector<channel*> *channels) {
     commandManager::clientUser = clientUser1;
     commandManager::chatClientUsers = chatClientUsers1;
+    commandManager::channels = channels;
 }
 
 bool commandManager::handleCommand(const string &command, vector<string> parameters) {
@@ -40,7 +42,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::ison();
     }
     else if(commandString == "JOIN") {
-        return commandManager::join();
+        return commandManager::join(messageParameters);
     }
     else if(commandString == "KICK") {
         return commandManager::kick();
@@ -162,9 +164,86 @@ bool commandManager::ison() {
     cout << "Ison() command called" << endl;
 
 }
-bool commandManager::join() {
-    cout << "Join() command called" << endl;
+bool commandManager::join(vector<string> parameters) {
+    if(parameters.size() < 1){
+        clientUser->socketConnection->sendString("Must Provide Channels like: Join #channel,#channel1");
+        return true;
+    }
+    cout << parameters.size() << endl;
+    
+    vector<string>givenChannels;
+    vector<string>keys;
+    string channelString;
+    string key;
+    istringstream channelStream(parameters.at(0));
+    istringstream keyStream;
+    //split the channel list and key list by comma
+    while(getline(channelStream, channelString,',')){
+        givenChannels.push_back(channelString);
+    }
 
+    if(parameters.size() > 1){
+        keyStream = istringstream(parameters.at(1));
+        while(getline(keyStream, key, ',')){
+        keys.push_back(key);
+        }
+    }
+    //check for correct channel format
+    for(int i =0; i < givenChannels.size();i++){
+        cout << givenChannels.at(i)[0] << endl;
+        if(givenChannels.at(i).at(0) != '#' && givenChannels.at(i).at(0) != '&'){
+            clientUser->socketConnection->sendString("Channel name must be prefixed with a \'#\' or \'&\'");
+            return true;
+        }
+    }
+    //check for channel existence, if it exists add the user to the channel, if not create the channel and add the user
+    for(int k = 0; k < givenChannels.size(); k ++){
+        bool channelExists = false;
+        int channelIndex = -1;
+        for(int i = 0; i < channels->size();i++){
+            if(channels->at(i)->getName() == givenChannels.at(k)){
+               channelExists = true;
+               channelIndex = i;
+            }
+        }
+        if(channelExists){
+            if(channels->at(channelIndex)->getPassword() != ""){
+                if(keys.size() >= k){
+                    if(keys.at(k) == channels->at(k)->getPassword()){
+                        channels->at(channelIndex)->addUser(clientUser);
+                        clientUser->socketConnection->sendString("connected to channel: " + givenChannels.at(k));
+                    }
+                    else{
+                        clientUser->socketConnection->sendString("Password incorrect for channel: " + givenChannels.at(k));
+                    }
+                }
+                else{
+                    clientUser->socketConnection->sendString("No password provided for password protected channl: " + givenChannels.at(k));
+                }
+            }
+            else{
+                channels->at(channelIndex)->addUser(clientUser);
+                clientUser->socketConnection->sendString("connected to channel: " + givenChannels.at(k));
+            }
+            
+        }
+        else{
+            channel *createdChannel;
+            if(keys.size() >= k +1){
+                createdChannel = new channel(givenChannels.at(k), keys.at(k));
+                clientUser->socketConnection->sendString("Created and connected to chanel: " + givenChannels.at(k) + " with password: " + keys.at(k));
+            }
+            else{
+                createdChannel = new channel(givenChannels.at(k),"");
+                clientUser->socketConnection->sendString("Created and connected to chanel: " + givenChannels.at(k));
+            }
+            
+            createdChannel->addUser(clientUser);
+            channels->push_back(createdChannel);
+            
+        }
+    }
+    return true;
 }
 bool commandManager::kick() {
     cout << "Kick() command called" << endl;
@@ -208,11 +287,11 @@ bool commandManager::pass() {
 
 }
 bool commandManager::ping() {
-    cout << "Ping() command called" << endl;
+    commandManager::pong();
 
 }
 bool commandManager::pong() {
-    cout << "Pong() command called" << endl;
+    clientUser->socketConnection->sendString("Pong");
 
 }
 bool commandManager::privmsg(vector<string>messageParameters) {
