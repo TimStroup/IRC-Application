@@ -19,7 +19,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
     vector<string> messageParameters = ircMessage.params;
 
     if(commandString == "AWAY") {
-        return commandManager::away();
+        return commandManager::away(messageParameters);
     }
     else if(commandString == "CONNECT") {
         return commandManager::connect();
@@ -128,7 +128,15 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return true;
     }
 }
-bool commandManager::away() {
+bool commandManager::away(vector<string> parameters) {
+    if(parameters.size() == 0) {
+        clientUser->setAwayStatus(false);
+        clientUser->setAwayMessage("");
+    } else {
+        clientUser->setAwayStatus(true);
+        clientUser->setAwayMessage(parameters.at(0));
+    }
+
     return true;
 }
 bool commandManager::connect() {
@@ -227,9 +235,18 @@ bool commandManager::privmsg(vector<string>messageParameters) {
         //If the nick was found, the index was updated to point to their location in the
         //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
         if(index != -1) {
+            
             cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
             string finalMessage = "[" + clientUser->getNick() + "]: " + msg; 
             targetSocket.sendString(finalMessage);
+            
+            //If the user is away, reply automatically with their away message
+            if(chatClientUsers->at(index)->getAwayStatus() == true) {
+                string awayMessage = "User is away: " + chatClientUsers->at(index)->getAwayMessage();
+                clientUser->getTcpUserSocket().sendString(awayMessage);
+            } else {
+                // Do Nothing, the user is not away
+            }
         }else {
             cout << "User does not exist" << endl;
             clientUser->socketConnection->sendString("User does not exist");
