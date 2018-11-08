@@ -166,83 +166,71 @@ bool commandManager::ison() {
 }
 bool commandManager::join(vector<string> parameters) {
     if(parameters.size() < 1){
-        clientUser->socketConnection->sendString("Must Provide Channels like: Join #channel,#channel1");
+        clientUser->socketConnection->sendString("Must Provide Channel like: Join <channel>[optional<space><pass>]");
         return true;
     }
     cout << parameters.size() << endl;
     
-    vector<string>givenChannels;
-    vector<string>keys;
-    string channelString;
+    string channelString = parameters.at(0);
     string key;
-    istringstream channelStream(parameters.at(0));
-    istringstream keyStream;
-    //split the channel list and key list by comma
-    while(getline(channelStream, channelString,',')){
-        givenChannels.push_back(channelString);
+    bool passwordGiven = false;
+
+    
+    if(parameters.size() > 1){
+       key = parameters.at(1);
+       passwordGiven = true;
     }
 
-    if(parameters.size() > 1){
-        keyStream = istringstream(parameters.at(1));
-        while(getline(keyStream, key, ',')){
-        keys.push_back(key);
-        }
-    }
     //check for correct channel format
-    for(int i =0; i < givenChannels.size();i++){
-        cout << givenChannels.at(i)[0] << endl;
-        if(givenChannels.at(i).at(0) != '#' && givenChannels.at(i).at(0) != '&'){
-            clientUser->socketConnection->sendString("Channel name must be prefixed with a \'#\' or \'&\'");
-            return true;
-        }
+    if(channelString.at(0) != '#' && channelString.at(0) != '&'){
+        clientUser->socketConnection->sendString("Channel name must be prefixed with a \'#\' or \'&\'");
+        return true;
     }
+
     //check for channel existence, if it exists add the user to the channel, if not create the channel and add the user
-    for(int k = 0; k < givenChannels.size(); k ++){
         bool channelExists = false;
         int channelIndex = -1;
         for(int i = 0; i < channels->size();i++){
-            if(channels->at(i)->getName() == givenChannels.at(k)){
+            if(channels->at(i)->getName() == channelString){
                channelExists = true;
                channelIndex = i;
             }
         }
         if(channelExists){
             if(channels->at(channelIndex)->getPassword() != ""){
-                if(keys.size() >= k){
-                    if(keys.at(k) == channels->at(k)->getPassword()){
+                if(passwordGiven){
+                    if(key == channels->at(channelIndex)->getPassword()){
                         channels->at(channelIndex)->addUser(clientUser);
-                        clientUser->socketConnection->sendString("connected to channel: " + givenChannels.at(k));
+                        clientUser->socketConnection->sendString("connected to channel: " + channelString);
                     }
                     else{
-                        clientUser->socketConnection->sendString("Password incorrect for channel: " + givenChannels.at(k));
+                        clientUser->socketConnection->sendString("Password incorrect for channel: " + channelString);
                     }
                 }
                 else{
-                    clientUser->socketConnection->sendString("No password provided for password protected channl: " + givenChannels.at(k));
+                    clientUser->socketConnection->sendString("No password provided for password protected channel: " + channelString);
                 }
             }
             else{
                 channels->at(channelIndex)->addUser(clientUser);
-                clientUser->socketConnection->sendString("connected to channel: " + givenChannels.at(k));
+                clientUser->socketConnection->sendString("connected to channel: " + channelString);
             }
             
         }
         else{
             channel *createdChannel;
-            if(keys.size() >= k +1){
-                createdChannel = new channel(givenChannels.at(k), keys.at(k));
-                clientUser->socketConnection->sendString("Created and connected to chanel: " + givenChannels.at(k) + " with password: " + keys.at(k));
+            if(passwordGiven){
+                createdChannel = new channel(channelString, key);
+                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString + " with password: " + key);
             }
             else{
-                createdChannel = new channel(givenChannels.at(k),"");
-                clientUser->socketConnection->sendString("Created and connected to chanel: " + givenChannels.at(k));
+                createdChannel = new channel(channelString,"");
+                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString);
             }
             
             createdChannel->addUser(clientUser);
             channels->push_back(createdChannel);
-            
         }
-    }
     return true;
 }
 bool commandManager::kick() {
