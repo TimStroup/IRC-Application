@@ -270,5 +270,6 @@ class commandManager
     //SUPPORT FUNCTIONS
 
     bool checkForChannel(string, int&);
-    bool checkForChannel(string);
+        //check if a user is in a channel
+    bool userInChannel(channel *channel);
 };

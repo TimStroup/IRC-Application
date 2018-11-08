@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "channel.h"
+#include "User.h"
 
 using namespace std;
 
@@ -195,11 +196,17 @@ bool commandManager::join(vector<string> parameters) {
         bool channelExists = checkForChannel(channelString, channelIndex);
 
         if(channelExists){
+            channel *channel = channels->at(channelIndex);
             if(channels->at(channelIndex)->getPassword() != ""){
                 if(passwordGiven){
                     if(key == channels->at(channelIndex)->getPassword()){
-                        channels->at(channelIndex)->addUser(clientUser);
-                        clientUser->socketConnection->sendString("connected to channel: " + channelString);
+                        if(userInChannel(channel)){
+                            clientUser->socketConnection->sendString("Already a part of the channel: " + channel->getName());
+                        }
+                        else{
+                            channels->at(channelIndex)->addUser(clientUser);
+                            clientUser->socketConnection->sendString("success:" + channelString + ": connected to channel");
+                        }
                     }
                     else{
                         clientUser->socketConnection->sendString("Password incorrect for channel: " + channelString);
@@ -210,8 +217,14 @@ bool commandManager::join(vector<string> parameters) {
                 }
             }
             else{
-                channels->at(channelIndex)->addUser(clientUser);
-                clientUser->socketConnection->sendString("connected to channel: " + channelString);
+                if(userInChannel(channel)){
+                    clientUser->socketConnection->sendString("Already a part of the channel: " + channel->getName());
+                }
+                else{
+                    channels->at(channelIndex)->addUser(clientUser);
+                    clientUser->socketConnection->sendString("success:" + channelString +": connected to channel");
+                }
+                
             }
             
         }
@@ -219,17 +232,26 @@ bool commandManager::join(vector<string> parameters) {
             channel *createdChannel;
             if(passwordGiven){
                 createdChannel = new channel(channelString, key);
-                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString + " with password: " + key);
+                clientUser->socketConnection->sendString("success:" + channelString + ": Created and connected to channel with password: " + key);
             }
             else{
                 createdChannel = new channel(channelString,"");
-                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString);
+                clientUser->socketConnection->sendString("success:" + channelString + ": Created and connected to channel");
             }
             
             createdChannel->addUser(clientUser);
             channels->push_back(createdChannel);
         }
     return true;
+}
+
+bool commandManager::userInChannel(channel* channel){
+    if(channel->getUser(clientUser->getNick()) == nullptr){
+        return false;
+    }
+    else{
+        return true;
+    }
 }
 bool commandManager::kick() {
     cout << "Kick() command called" << endl;
