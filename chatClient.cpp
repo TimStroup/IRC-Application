@@ -7,6 +7,9 @@
 
 using namespace std;
 
+vector<string> channels;
+string listeningChannel;
+
 string status = "";
 
 chatClient::chatClient(){
@@ -46,10 +49,38 @@ void receiveMessages(cs457::tcpUserSocket* tcpUserSocket) {
     while(status != "QUIT") {
         string msg;
         tie(msg,val) = tcpUserSocket->recvString();
-
+        
         if(msg == "QUIT") {
             status = "QUIT";
-        } else {
+        }
+        else if(msg.at(1) == '#' || msg.at(1) == '&'){
+            string channel = "";
+            for(int i = 1; i < msg.size(); i++){
+                if(msg.at(i) == ']'){
+                    break;
+                }
+                else{
+                    channel += msg.at(i);
+                }
+            }
+            if(channel == listeningChannel){
+                cout << msg << endl;
+            }
+        }
+        else if(msg.substr(0,8) == "success:"){
+            string channel = "";
+            for(int i = 9; i < msg.size(); i++){
+                if(msg.at(i) == ':'){
+                    break;
+                }
+                else{
+                    channel += msg.at(9);
+                }
+                
+            }
+            listeningChannel = channel;
+        } 
+        else {
             cout << msg << endl;
         }
     }

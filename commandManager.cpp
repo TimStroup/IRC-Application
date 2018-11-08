@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "channel.h"
+#include "User.h"
 
 using namespace std;
 
@@ -201,7 +202,7 @@ bool commandManager::join(vector<string> parameters) {
                 if(passwordGiven){
                     if(key == channels->at(channelIndex)->getPassword()){
                         channels->at(channelIndex)->addUser(clientUser);
-                        clientUser->socketConnection->sendString("connected to channel: " + channelString);
+                        clientUser->socketConnection->sendString("success:" + channelString + ": connected to channel");
                     }
                     else{
                         clientUser->socketConnection->sendString("Password incorrect for channel: " + channelString);
@@ -213,7 +214,7 @@ bool commandManager::join(vector<string> parameters) {
             }
             else{
                 channels->at(channelIndex)->addUser(clientUser);
-                clientUser->socketConnection->sendString("connected to channel: " + channelString);
+                clientUser->socketConnection->sendString("success:" + channelString +": connected to channel");
             }
             
         }
@@ -221,11 +222,11 @@ bool commandManager::join(vector<string> parameters) {
             channel *createdChannel;
             if(passwordGiven){
                 createdChannel = new channel(channelString, key);
-                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString + " with password: " + key);
+                clientUser->socketConnection->sendString("success:" + channelString + ": Created and connected to channel with password: " + key);
             }
             else{
                 createdChannel = new channel(channelString,"");
-                clientUser->socketConnection->sendString("Created and connected to channel: " + channelString);
+                clientUser->socketConnection->sendString("success:" + channelString + ": Created and connected to channel");
             }
             
             createdChannel->addUser(clientUser);
