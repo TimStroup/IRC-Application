@@ -25,5 +25,5 @@ class User
         string nickName;
         string password;
         string awayMessage;
-        bool awayStatus;
+        bool awayStatus = false;
 };

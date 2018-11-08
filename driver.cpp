@@ -68,38 +68,53 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     return 1; 
 }
 
-int main(int argc, char * argv[])
-{
+void acceptConnections() {
     cout << "Initializing Socket" << std::endl; 
     cs457::tcpServerSocket mysocket(2000);
     cout << "Binding Socket" << std::endl; 
-    mysocket.bindSocket(); 
-    cout << "Listening Socket" << std::endl; 
-    mysocket.listenSocket(); 
+    mysocket.bindSocket();
     cout << "Waiting to Accept Socket" << std::endl;
-    int id = 0; 
-    vector<unique_ptr<thread>> threadList; 
-  
-    while (ready)
-    { 
+    mysocket.listenSocket();
+
+    int id = 0;
+    vector<unique_ptr<thread>> threadList;
+    
+    bool readyThread = true;
+
+    while(readyThread) {
         shared_ptr<cs457::tcpUserSocket> clientSocket;
-        int val; 
+        int val;
         tie(clientSocket,val) = mysocket.acceptSocket();
-        cout << "value for accept is " << val << std::endl; 
-        cout << "Socket Accepted" << std::endl; 
         unique_ptr<thread> t = make_unique<thread>(cclient,clientSocket,id);
         threadList.push_back(std::move(t)); 
-        id++; //not the best way to go about it. 
-       // threadList.push_back(t); 
-           
+        id++;
     }
 
-    for (auto& t: threadList)
-    {
+    for (auto& t : threadList) {
         t.get()->join();
     }
+}
+
+int main(int argc, char * argv[])
+{
+    //cout << "Initializing Socket" << std::endl; 
+    //cs457::tcpServerSocket mysocket(2000);
+    //cout << "Binding Socket" << std::endl; 
+    //mysocket.bindSocket(); 
+    //cout << "Listening Socket" << std::endl; 
+    //mysocket.listenSocket(); 
+    //cout << "Waiting to Accept Socket" << std::endl;
+    //int id = 0; 
+    //vector<unique_ptr<thread>> threadList; 
+  
+    thread acceptThread(acceptConnections);
     
-    
+    while(true) {
+        string message;
+        getline(cin,message);
+        cout << message << endl;
+    }
     cout << "Server is shutting down after one client" << endl; 
+    
     return 0; 
 }
