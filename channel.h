@@ -10,6 +10,7 @@ class channel
     channel(string name, string password);
     string getName();
     string getPassword();
+    string getTopic();
     void setTopic(string topic);
     void addUser(User *user);
     void removeUser(string nickName);

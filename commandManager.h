@@ -102,7 +102,7 @@ class commandManager
         Lists all channels on the server. If the comma-separated list <channels> is given, it will return the channel topics. 
         If <server> is given, the command will be forwarded to <server> for evaluation. 
         */
-    bool list();
+    bool list(vector<string>);
 
     /*
         Syntax:
@@ -209,7 +209,7 @@ class commandManager
         If <topic> is given, it sets the channel topic to <topic>. 
         If channel mode +t is set, only a channel operator may set the topic.
         */
-    bool topic();
+    bool topic(vector<string>);
 
     /*
         Syntax:
@@ -266,4 +266,9 @@ class commandManager
          If <server> is given, the command is forwarded to it for processing.
         */
     bool whois();
+
+    //SUPPORT FUNCTIONS
+
+    bool checkForChannel(string, int&);
+    bool checkForChannel(string);
 };
