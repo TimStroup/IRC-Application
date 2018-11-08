@@ -21,7 +21,7 @@ class commandManager
          With the AWAY message, clients can set an automatic reply string for
          any PRIVMSG commands directed at them (not to a channel they are on).
         */
-    bool away();
+    bool away(vector<string>);
 
     /*Command: CONNECT
         Parameters: <target server> [<port> [<remote server>]]

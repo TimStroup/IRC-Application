@@ -19,6 +19,22 @@ void User::setTcpUserSocket(shared_ptr<cs457::tcpUserSocket> socket){
     socketConnection = socket.get();
 }
 
+void User::setAwayStatus(bool status) {
+    awayStatus = status;
+}
+
+void User::setAwayMessage(string message) {
+    awayMessage = message;
+}
+
+bool User::getAwayStatus() {
+    return awayStatus;
+}
+
+string User::getAwayMessage() {
+    return awayMessage;
+}
+
 const string User::getNick() {
     return nickName;
 }
