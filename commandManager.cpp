@@ -244,6 +244,8 @@ bool commandManager::knock() {
 
 }
 bool commandManager::list(vector<string> parameters) {
+    //If parameter size == 0, LIST was passed in without channel names,
+    // so just print out all the current channels
     if(parameters.size() == 0) {
         string channelList;
         for(int i = 0; i < channels->size(); i++) {
@@ -251,12 +253,18 @@ bool commandManager::list(vector<string> parameters) {
         }
         channelList.pop_back(); //Removes trailing comma
         clientUser->socketConnection->sendString("Current Channels are: " + channelList);
-    } else if(parameters.size() == 1) {
+    } 
+    //Else, if parameter size == 1, a comma separated string containing channel
+    // names were passed. Parse through the string and return the topic of each
+    // of the specified channels
+    else if(parameters.size() == 1) {
         
         vector<string> channelList;
         string channelInQuestion;
-        istringstream channelStream(parameters.at(1));
 
+        istringstream channelStream(parameters.at(0));
+
+        //Process the comma separated string and add those channels to a vector
         while (getline(channelStream, channelInQuestion, ',')) {
             channelList.push_back(channelInQuestion);
         }
@@ -264,6 +272,8 @@ bool commandManager::list(vector<string> parameters) {
         string topicList;
         int channelIndex;
 
+        //For each of the channels in the passed in string, check if they exist or not.
+        //If they do, grab their topic, and add it to the response string
         for(int i = 0; i < channelList.size(); i++) {
             if(checkForChannel(channelList.at(i), channelIndex)) {
                 string tempString = "Channel [" + channelList.at(i) + "] topic is: " + channels->at(channelIndex)->getTopic() + ",";
@@ -274,10 +284,15 @@ bool commandManager::list(vector<string> parameters) {
         topicList.pop_back(); //Removes trailing comma
 
         clientUser->socketConnection->sendString(topicList);
+    }  
+    //Else, the wrong number of parameters were passed in.
+    else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
     }
-
+    
     return true;
 }
+
 bool commandManager::mode() {
     cout << "Mode() command called" << endl;
 
@@ -485,11 +500,3 @@ bool commandManager::checkForChannel(string channelName, int& channelIndex) {
     return false;
 }
 
-bool commandManager::checkForChannel(string channelName) {
-    for(int i = 0; i < channels->size(); i++) {
-        if(channels->at(i)->getName() == channelName) {
-            return true;
-        }
-    }
-    return false;
-}
