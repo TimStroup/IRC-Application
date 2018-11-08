@@ -266,4 +266,7 @@ class commandManager
          If <server> is given, the command is forwarded to it for processing.
         */
     bool whois();
+
+        //check if a user is in a channel
+    bool userInChannel(channel *channel);
 };

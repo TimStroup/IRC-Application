@@ -198,11 +198,17 @@ bool commandManager::join(vector<string> parameters) {
             }
         }
         if(channelExists){
+            channel *channel = channels->at(channelIndex);
             if(channels->at(channelIndex)->getPassword() != ""){
                 if(passwordGiven){
                     if(key == channels->at(channelIndex)->getPassword()){
-                        channels->at(channelIndex)->addUser(clientUser);
-                        clientUser->socketConnection->sendString("success:" + channelString + ": connected to channel");
+                        if(userInChannel(channel)){
+                            clientUser->socketConnection->sendString("Already a part of the channel: " + channel->getName());
+                        }
+                        else{
+                            channels->at(channelIndex)->addUser(clientUser);
+                            clientUser->socketConnection->sendString("success:" + channelString + ": connected to channel");
+                        }
                     }
                     else{
                         clientUser->socketConnection->sendString("Password incorrect for channel: " + channelString);
@@ -213,8 +219,14 @@ bool commandManager::join(vector<string> parameters) {
                 }
             }
             else{
-                channels->at(channelIndex)->addUser(clientUser);
-                clientUser->socketConnection->sendString("success:" + channelString +": connected to channel");
+                if(userInChannel(channel)){
+                    clientUser->socketConnection->sendString("Already a part of the channel: " + channel->getName());
+                }
+                else{
+                    channels->at(channelIndex)->addUser(clientUser);
+                    clientUser->socketConnection->sendString("success:" + channelString +": connected to channel");
+                }
+                
             }
             
         }
@@ -233,6 +245,15 @@ bool commandManager::join(vector<string> parameters) {
             channels->push_back(createdChannel);
         }
     return true;
+}
+
+bool commandManager::userInChannel(channel* channel){
+    if(channel->getUser(clientUser->getNick()) == nullptr){
+        return false;
+    }
+    else{
+        return true;
+    }
 }
 bool commandManager::kick() {
     cout << "Kick() command called" << endl;
