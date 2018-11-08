@@ -16,6 +16,10 @@ string channel::getPassword(){
     return channel::password;
 }
 
+string channel::getTopic() {
+    return channel::topic;
+}
+
 void channel::setTopic(string topic){
     channel::topic = topic;
 };

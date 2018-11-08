@@ -54,6 +54,9 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
     else if(commandString == "KNOCK") {
         return commandManager::knock();
     }
+    else if(commandString == "LIST") {
+        return commandManager::list(messageParameters);
+    }
     else if(commandString == "MODE") {
         return commandManager::mode();
     }
@@ -100,7 +103,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::time(messageParameters);
     }
     else if(commandString == "TOPIC") {
-        return commandManager::topic();
+        return commandManager::topic(messageParameters);
     }
     else if(commandString == "USER") {
         return commandManager::user();
@@ -189,14 +192,9 @@ bool commandManager::join(vector<string> parameters) {
     }
 
     //check for channel existence, if it exists add the user to the channel, if not create the channel and add the user
-        bool channelExists = false;
         int channelIndex = -1;
-        for(int i = 0; i < channels->size();i++){
-            if(channels->at(i)->getName() == channelString){
-               channelExists = true;
-               channelIndex = i;
-            }
-        }
+        bool channelExists = checkForChannel(channelString, channelIndex);
+
         if(channelExists){
             channel *channel = channels->at(channelIndex);
             if(channels->at(channelIndex)->getPassword() != ""){
@@ -267,10 +265,56 @@ bool commandManager::knock() {
     cout << "Knock() command called" << endl;
 
 }
-bool commandManager::list() {
-    cout << "List() command called" << endl;
+bool commandManager::list(vector<string> parameters) {
+    //If parameter size == 0, LIST was passed in without channel names,
+    // so just print out all the current channels
+    if(parameters.size() == 0) {
+        string channelList;
+        for(int i = 0; i < channels->size(); i++) {
+            channelList += channels->at(i)->getName() + ",";
+        }
+        channelList.pop_back(); //Removes trailing comma
+        clientUser->socketConnection->sendString("Current Channels are: " + channelList);
+    } 
+    //Else, if parameter size == 1, a comma separated string containing channel
+    // names were passed. Parse through the string and return the topic of each
+    // of the specified channels
+    else if(parameters.size() == 1) {
+        
+        vector<string> channelList;
+        string channelInQuestion;
 
+        istringstream channelStream(parameters.at(0));
+
+        //Process the comma separated string and add those channels to a vector
+        while (getline(channelStream, channelInQuestion, ',')) {
+            channelList.push_back(channelInQuestion);
+        }
+
+        string topicList;
+        int channelIndex;
+
+        //For each of the channels in the passed in string, check if they exist or not.
+        //If they do, grab their topic, and add it to the response string
+        for(int i = 0; i < channelList.size(); i++) {
+            if(checkForChannel(channelList.at(i), channelIndex)) {
+                string tempString = "Channel [" + channelList.at(i) + "] topic is: " + channels->at(channelIndex)->getTopic() + ",";
+                topicList += tempString;
+            }
+        }
+
+        topicList.pop_back(); //Removes trailing comma
+
+        clientUser->socketConnection->sendString(topicList);
+    }  
+    //Else, the wrong number of parameters were passed in.
+    else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
+    
+    return true;
 }
+
 bool commandManager::mode() {
     cout << "Mode() command called" << endl;
 
@@ -319,14 +363,8 @@ bool commandManager::privmsg(vector<string>messageParameters) {
 
         //After verifying that the target was a channel, make sure that channel exist
         if(isChannel) {
-            bool channelExists = false;
             int channelIndex = -1;
-            for(int i = 0; i < channels->size();i++){
-               if(channels->at(i)->getName() == targetClient){
-                    channelExists = true;
-                    channelIndex = i;
-                }
-            }
+            bool channelExists = checkForChannel(targetClient, channelIndex);
 
             //If channel existence is verified, proceed to send message to that channel
             if(channelExists) {
@@ -397,7 +435,7 @@ bool commandManager::silence() {
     cout << "Silence() command called" << endl;
 
 }
-bool commandManager::time(vector<string> messageParameters) {
+bool commandManager::time(vector<string> parameters) {
     time_t timer;
 
     std::time(&timer);
@@ -408,9 +446,36 @@ bool commandManager::time(vector<string> messageParameters) {
 
     return true;
 }
-bool commandManager::topic() {
-    cout << "Topic() command called" << endl;
+bool commandManager::topic(vector<string> parameters) {
+    bool channelExists = false;
+    int channelIndex = -1;
+    
+    if(parameters.size() == 1) {
+        
+        channelExists = checkForChannel(parameters.at(0), channelIndex);
 
+        if(channelExists) {
+            clientUser->socketConnection->sendString("Topic of [" + parameters.at(0) + "] is: " + channels->at(channelIndex)->getTopic());
+        }else {
+            clientUser->socketConnection->sendString("Channel does not exist");
+        }
+
+    } else if(parameters.size() == 2) {
+        
+        channelExists = checkForChannel(parameters.at(0), channelIndex);
+        
+        if(channelExists) {
+            channels->at(channelIndex)->setTopic(parameters.at(1));
+            clientUser->socketConnection->sendString("Topic of [" + parameters.at(0) + "] has been set to: " + parameters.at(1));
+        }else {
+            clientUser->socketConnection->sendString("Channel does not exist");
+        }
+
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of parameters passed in");
+    }
+
+    return true;
 }
 bool commandManager::user() {
     cout << "User() command called" << endl;
@@ -444,3 +509,16 @@ bool commandManager::whois() {
     cout << "Whois() command called" << endl;
 
 }
+
+//SUPPORT FUNCTIONS
+
+bool commandManager::checkForChannel(string channelName, int& channelIndex) {
+    for(int i = 0; i < channels->size(); i++) {
+        if(channels->at(i)->getName() == channelName) {
+            channelIndex = i;
+            return true;
+        }
+    }
+    return false;
+}
+
