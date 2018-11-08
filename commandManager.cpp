@@ -284,41 +284,68 @@ bool commandManager::pong() {
 }
 bool commandManager::privmsg(vector<string>messageParameters) {
     
-    //Check if there is both a User to send to, and a message to send, thus size = 2
+    //Check if there is both a User/Channel to send to, and a message to send, thus size = 2
     if(messageParameters.size() >= 2) {
         string targetClient = messageParameters.at(0);
         string msg = messageParameters.at(1);
 
-        int index = -1; //Default to -1 so that we can check for whether the user exist or not
+        bool isChannel = false;
 
-        //Loop through all the current chat client users and see if the nick passed in
-        //is connected or not.
-        for(int i = 0; i < chatClientUsers->size(); i++) {
-            if(chatClientUsers->at(i)->getNick() == targetClient) {
-                index = i;
-            }
+        if(targetClient.at(0) == '&' || targetClient.at(0) == '#') {
+            isChannel = true;
         }
 
-        //If the nick was found, the index was updated to point to their location in the
-        //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
-        if(index != -1) {
-            
-            cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
-            string finalMessage = "[" + clientUser->getNick() + "]: " + msg; 
-            targetSocket.sendString(finalMessage);
-            
-            //If the user is away, reply automatically with their away message
-            if(chatClientUsers->at(index)->getAwayStatus() == true) {
-                string awayMessage = "User is away: " + chatClientUsers->at(index)->getAwayMessage();
-                clientUser->getTcpUserSocket().sendString(awayMessage);
+        //After verifying that the target was a channel, make sure that channel exist
+        if(isChannel) {
+            bool channelExists = false;
+            int channelIndex = -1;
+            for(int i = 0; i < channels->size();i++){
+               if(channels->at(i)->getName() == targetClient){
+                    channelExists = true;
+                    channelIndex = i;
+                }
+            }
+
+            //If channel existence is verified, proceed to send message to that channel
+            if(channelExists) {
+                string finalMessage = "[" + targetClient + "-" + clientUser->getNick() + "]: " + msg;
+                channels->at(channelIndex)->sendMessage(finalMessage);
             } else {
-                // Do Nothing, the user is not away
+                clientUser->socketConnection->sendString("Channel [" + targetClient + "] does not exist");
             }
         }else {
-            cout << "User does not exist" << endl;
-            clientUser->socketConnection->sendString("User does not exist");
-        }
+            //MASSIVE ELSE!!!!! This Else handles NON CHANNEL Messages (IE Direct Private Messages)
 
+            int index = -1; //Default to -1 so that we can check for whether the user exist or not
+
+            //Loop through all the current chat client users and see if the nick passed in
+            //is connected or not.
+            for(int i = 0; i < chatClientUsers->size(); i++) {
+                if(chatClientUsers->at(i)->getNick() == targetClient) {
+                    index = i;
+                }
+            }
+
+            //If the nick was found, the index was updated to point to their location in the
+            //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
+            if(index != -1) {
+            
+                cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
+                string finalMessage = "[" + clientUser->getNick() + "]: " + msg; 
+                targetSocket.sendString(finalMessage);
+            
+                //If the user is away, reply automatically with their away message
+                if(chatClientUsers->at(index)->getAwayStatus() == true) {
+                    string awayMessage = "User is away: " + chatClientUsers->at(index)->getAwayMessage();
+                    clientUser->getTcpUserSocket().sendString(awayMessage);
+                } else {
+                // Do Nothing, the user is not away
+                }
+            }else {
+                cout << "User does not exist" << endl;
+                clientUser->socketConnection->sendString("User does not exist");
+            }
+        }
     } else {
         cout << "Invalid number of parameters passed in for PRIVMSG" << endl;
     }
