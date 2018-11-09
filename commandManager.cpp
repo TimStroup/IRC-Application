@@ -37,7 +37,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::info();
     }
     else if(commandString == "INVITE") {
-        return commandManager::invite();
+        return commandManager::invite(messageParameters);
     }
     else if(commandString == "ISON") {
         return commandManager::ison(messageParameters);
@@ -160,9 +160,27 @@ bool commandManager::info() {
     cout << "Info() command called" << endl;
 
 }
-bool commandManager::invite() {
-    cout << "Invite() command called" << endl;
+bool commandManager::invite(vector<string> parameters) {
+    if(parameters.size() == 2) {
+        int index = checkForUser(parameters.at(0));
 
+        if(index != -1) {
+            if(parameters.at(1).at(0) == '#' || parameters.at(1).at(0) == '&') {
+                string sendString = "You have been invited to join " + 
+                                    parameters.at(1) +
+                                    " by " + clientUser->getNick();
+                chatClientUsers->at(index)->socketConnection->sendString(sendString);
+            } else {
+                clientUser->socketConnection->sendString("Improper format for Channel");
+            }
+
+        } else {
+            clientUser->socketConnection->sendString("User does not exist");
+        }
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
+    return true;
 }
 bool commandManager::ison(vector<string> parameters) {
     //Check to see if a parameter (a comma separated string) was passed in or not.
@@ -182,11 +200,7 @@ bool commandManager::ison(vector<string> parameters) {
             //As we grab a client that is being asked about, we check all of the online
             //users in chatClientUsers. If that user is found in the list, update the
             //index so that we know that we found it.
-            for(int j = 0; j < chatClientUsers->size(); j++) {
-                if(chatClientUsers->at(j)->getNick() == listOfClients.at(i)) {
-                    index = j;
-                }
-            }
+            index = checkForUser(listOfClients.at(i));
 
             //As long as the index was updated, it means the user in question is online
             //and we append their name to the return string.
@@ -411,11 +425,7 @@ bool commandManager::privmsg(vector<string>messageParameters) {
 
             //Loop through all the current chat client users and see if the nick passed in
             //is connected or not.
-            for(int i = 0; i < chatClientUsers->size(); i++) {
-                if(chatClientUsers->at(i)->getNick() == targetClient) {
-                    index = i;
-                }
-            }
+            index = checkForUser(targetClient);
 
             //If the nick was found, the index was updated to point to their location in the
             //vector. Grab the tcpUserSocket of that nick and send the message that was passed in
@@ -563,5 +573,17 @@ vector<string> commandManager::parseCommaList(string& commaList) {
     }
 
     return returnVector;
+}
+
+int commandManager::checkForUser(string user) {
+    int index = -1;
+
+    for(int i = 0; i < chatClientUsers->size(); i++) {
+        if(chatClientUsers->at(i)->getNick() == user) {
+            index = i;
+        }
+    }
+
+    return index;
 }
 
