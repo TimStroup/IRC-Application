@@ -68,7 +68,7 @@ class commandManager
          The server returns only the nicknames that are on the network in a space-separated list. 
          If none of the clients are on the network the server returns an empty list.
         */
-    bool ison();
+    bool ison(vector<string>);
 
     /*
         Syntax: JOIN <channels> [<keys>]
@@ -269,7 +269,10 @@ class commandManager
 
     //SUPPORT FUNCTIONS
 
+    vector<string> parseCommaList(string&);
+    
     bool checkForChannel(string, int&);
-        //check if a user is in a channel
+    
+    //check if a user is in a channel
     bool userInChannel(channel *channel);
 };

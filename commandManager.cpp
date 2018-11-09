@@ -40,7 +40,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::invite();
     }
     else if(commandString == "ISON") {
-        return commandManager::ison();
+        return commandManager::ison(messageParameters);
     }
     else if(commandString == "JOIN") {
         return commandManager::join(messageParameters);
@@ -164,10 +164,47 @@ bool commandManager::invite() {
     cout << "Invite() command called" << endl;
 
 }
-bool commandManager::ison() {
-    cout << "Ison() command called" << endl;
+bool commandManager::ison(vector<string> parameters) {
+    //Check to see if a parameter (a comma separated string) was passed in or not.
+    if(parameters.size() == 1) {
+        vector<string> listOfClients;
 
+        //Create a vector of the clients that are being checked on
+        listOfClients = parseCommaList(parameters.at(0));
+        
+        //The eventual return string
+        string onlineClients = "List of online client(s): ";
+
+        //First, we loop through all the clients that are being asked about
+        for(int i = 0; i < listOfClients.size(); i++) {
+            int index = -1;
+
+            //As we grab a client that is being asked about, we check all of the online
+            //users in chatClientUsers. If that user is found in the list, update the
+            //index so that we know that we found it.
+            for(int j = 0; j < chatClientUsers->size(); j++) {
+                if(chatClientUsers->at(j)->getNick() == listOfClients.at(i)) {
+                    index = j;
+                }
+            }
+
+            //As long as the index was updated, it means the user in question is online
+            //and we append their name to the return string.
+            if(index != -1) {
+                onlineClients += chatClientUsers->at(index)->getNick();
+                onlineClients += ",";
+            }
+        
+        }
+
+        onlineClients.pop_back(); //Remove trailing comma
+
+        clientUser->socketConnection->sendString(onlineClients);
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
 }
+
 bool commandManager::join(vector<string> parameters) {
     if(parameters.size() < 1){
         clientUser->socketConnection->sendString("Must Provide Channel like: Join <channel>[optional<space><pass>]");
@@ -282,15 +319,9 @@ bool commandManager::list(vector<string> parameters) {
     else if(parameters.size() == 1) {
         
         vector<string> channelList;
-        string channelInQuestion;
 
-        istringstream channelStream(parameters.at(0));
-
-        //Process the comma separated string and add those channels to a vector
-        while (getline(channelStream, channelInQuestion, ',')) {
-            channelList.push_back(channelInQuestion);
-        }
-
+        channelList = parseCommaList(parameters.at(0));
+        
         string topicList;
         int channelIndex;
 
@@ -520,5 +551,17 @@ bool commandManager::checkForChannel(string channelName, int& channelIndex) {
         }
     }
     return false;
+}
+
+vector<string> commandManager::parseCommaList(string& commaList) {
+    vector<string> returnVector;
+    string tempString;
+    istringstream iss(commaList);
+
+    while(getline(iss,tempString, ',')) {
+        returnVector.push_back(tempString);
+    }
+
+    return returnVector;
 }
 
