@@ -521,7 +521,7 @@ bool commandManager::login(vector<string> messageParameters){
 }
 
 bool commandManager::registerUser(vector<string> messageParameters){
-
+    
 }
 
 //SUPPORT FUNCTIONS
