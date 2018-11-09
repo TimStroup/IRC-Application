@@ -267,9 +267,14 @@ class commandManager
         */
     bool whois();
 
+    bool login(vector<string>);
+
+    bool registerUser(vector<string>);
+
     //SUPPORT FUNCTIONS
 
     bool checkForChannel(string, int&);
         //check if a user is in a channel
     bool userInChannel(channel *channel);
+
 };

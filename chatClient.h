@@ -11,6 +11,7 @@ using namespace std;
         chatClient(string& hostname, string& nickname, int port,
                     string& configFile, string& testFile, string& logFile);
         void setNickname(string& nickname);
+        int getPort();
         void setCmdFields(InputParser input);
         void receiveMessages(cs457::tcpUserSocket*);
         const string& getNickname();
@@ -18,7 +19,7 @@ using namespace std;
     private:
         string hostname;
         string nickname;
-        int port;
+        int port = 5437;
         string confFile;
         string testFile;
         string logFile;

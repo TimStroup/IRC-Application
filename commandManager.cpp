@@ -129,6 +129,12 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
     else if(commandString == "WHOIS") {
         return commandManager::whois();
     }
+    else if(commandString == "LOGIN"){
+        commandManager::login(messageParameters);
+    }
+    else if(commandString == "REGISTER"){
+        commandManager::registerUser(messageParameters);
+    }
     else {
         cout << "Command Doesn't Exist" << endl;
         return true;
@@ -507,6 +513,14 @@ bool commandManager::who() {
 }
 bool commandManager::whois() {
     cout << "Whois() command called" << endl;
+
+}
+
+bool commandManager::login(vector<string> messageParameters){
+
+}
+
+bool commandManager::registerUser(vector<string> messageParameters){
 
 }
 
