@@ -48,12 +48,12 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
         cont = commandManager1.handleCommand(msg, testVector);
 
         cout << "[SERVER] CLIENT [" << clientUser.getNick() << "] sent message: " << msg << endl;
-        string s =  "[SERVER REPLY] You sent: " + msg  + "\n"; 
-        thread childT1(&cs457::tcpUserSocket::sendString,clientSocket.get(),s,true);
+        //string s =  "[SERVER REPLY] You sent: " + msg  + "\n"; 
+        //thread childT1(&cs457::tcpUserSocket::sendString,clientSocket.get(),s,true);
         //thread childT2(&cs457::tcpUserSocket::sendString,clientSocket.get(),msg,true);
         //thread childT3(&cs457::tcpUserSocket::sendString,clientSocket.get(),"\n",true);
         
-        childT1.join();
+        //childT1.join();
         //childT2.join(); 
         //childT3.join(); 
         //clientSocket.get()->sendString(msg); 
