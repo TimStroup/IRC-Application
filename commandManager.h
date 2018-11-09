@@ -60,7 +60,7 @@ class commandManager
          <channel> does not have to exist, but if it does, only members of the channel are allowed to invite other clients. 
          If the channel mode i is set, only channel operators may invite other clients. 
         */
-    bool invite();
+    bool invite(vector<string>);
 
     /*
         Syntax: ISON <nicknames>
@@ -270,9 +270,10 @@ class commandManager
     //SUPPORT FUNCTIONS
 
     vector<string> parseCommaList(string&);
-    
     bool checkForChannel(string, int&);
+    int checkForUser(string);
     
     //check if a user is in a channel
     bool userInChannel(channel *channel);
+
 };
