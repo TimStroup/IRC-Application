@@ -130,7 +130,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::whois();
     }
     else {
-        cout << "Command Doesn't Exist" << endl;
+        clientUser->socketConnection->sendString("Command does not exist");
         return true;
     }
 }
