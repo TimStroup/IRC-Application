@@ -161,10 +161,17 @@ bool commandManager::info() {
 
 }
 bool commandManager::invite(vector<string> parameters) {
+    //Ensure that there is both a User and a Channel in the parameters
     if(parameters.size() == 2) {
+
+        //Check if the user exist or not
         int index = checkForUser(parameters.at(0));
 
+        //Default of -1 means user DOES NOT Exist. If user does exist, then
+        //index was updated.
         if(index != -1) {
+
+            //Check that the next parameter is really a channel or not
             if(parameters.at(1).at(0) == '#' || parameters.at(1).at(0) == '&') {
                 string sendString = "You have been invited to join " + 
                                     parameters.at(1) +
