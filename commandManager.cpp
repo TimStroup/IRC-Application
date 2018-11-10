@@ -630,12 +630,24 @@ bool commandManager::userip() {
 
 }
 bool commandManager::users() {
-    cout << "Users() command called" << endl;
+    string currentUsers = "Current Online Users: ";
 
+    for(int i = 0; i < chatClientUsers->size(); i++) {
+        currentUsers += chatClientUsers->at(i)->getNick();
+        currentUsers += ",";
+    }
+
+    currentUsers.pop_back();
+
+    clientUser->socketConnection->sendString(currentUsers);
+    
+    return true;
 }
 bool commandManager::version() {
-    cout << "Version() command called" << endl;
+    string versionString = "Server version: 1.0.0 \nAuthors: Tim Stroup and Trey Yu";
+    clientUser->socketConnection->sendString(versionString);
 
+    return true;
 }
 bool commandManager::wallops() {
     cout << "Wallops() command called" << endl;
