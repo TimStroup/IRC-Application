@@ -53,7 +53,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::kill(messageParameters);
     }
     else if(commandString == "KNOCK") {
-        return commandManager::knock();
+        return commandManager::knock(messageParameters);
     }
     else if(commandString == "LIST") {
         return commandManager::list(messageParameters);
@@ -333,8 +333,9 @@ bool commandManager::kick(vector<string> parameters) {
         } else {
             clientUser->socketConnection->sendString("Channel does not exist");
         }
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
     }
-
     return true;
 }
 bool commandManager::kill(vector<string> parameters) {
@@ -365,9 +366,42 @@ bool commandManager::kill(vector<string> parameters) {
 
 }
 
-bool commandManager::knock() {
-    cout << "Knock() command called" << endl;
+bool commandManager::knock(vector<string> parameters) {
+    
+    //Check if there is Channel to knock
+    if(parameters.size() == 1) {
+        
+        string targetChannel = parameters.at(0);
+        int channelIndex;
 
+        //Check that the channel exist or not
+        if(checkForChannel(targetChannel,channelIndex)) {
+            string message = "User [" + clientUser->getNick() + "] is requesting to join: " + targetChannel;
+            channels->at(channelIndex)->sendMessage(message);
+        } else {
+            clientUser->socketConnection->sendString("Channel does not exist");
+        }
+
+    // Else, there is a channel and a message to send as they are knocking
+    } else if (parameters.size() == 2) {
+        
+        string targetChannel = parameters.at(0);
+        string knockMessage = parameters.at(1);
+
+        int channelIndex;
+
+        if(checkForChannel(targetChannel,channelIndex)) {
+        
+            string message = "User [" + clientUser->getNick() + "] is requesting to join: " + targetChannel + '\n'
+            + "Their message is: " + knockMessage;
+            channels->at(channelIndex)->sendMessage(message);
+        
+        } else {
+            clientUser->socketConnection->sendString("Channel does not exist");
+        }
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
 }
 bool commandManager::list(vector<string> parameters) {
 
