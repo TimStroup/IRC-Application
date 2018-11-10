@@ -82,7 +82,7 @@ class commandManager
         Syntax: KICK <channel> <client> [<message>]
         Forcibly removes <client> from <channel>.This command may only be issued by channel operators.
         */
-    bool kick();
+    bool kick(vector<string>);
 
     /*
         Syntax: KILL <client> <comment>
