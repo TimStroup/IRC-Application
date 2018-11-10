@@ -96,7 +96,7 @@ class commandManager
         This command is not formally defined by an RFC, but is supported by most major IRC daemons. 
         Support is indicated in a RPL_ISUPPORT reply (numeric 005) with the KNOCK keyword.
         */
-    bool knock();
+    bool knock(vector<string>);
 
     /*
         Syntax: LIST [<channels> [<server>]]
