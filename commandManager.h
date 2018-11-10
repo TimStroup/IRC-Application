@@ -88,7 +88,7 @@ class commandManager
         Syntax: KILL <client> <comment>
         Forcibly removes <client> from the network. This command may only be issued by IRC operators. 
         */
-    bool kill();
+    bool kill(vector<string>);
 
     /*
         Syntax: KNOCK <channel> [<message>]

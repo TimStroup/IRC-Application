@@ -50,7 +50,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::kick(messageParameters);
     }
     else if(commandString == "KILL") {
-        return commandManager::kill();
+        return commandManager::kill(messageParameters);
     }
     else if(commandString == "KNOCK") {
         return commandManager::knock();
@@ -311,28 +311,60 @@ bool commandManager::join(vector<string> parameters) {
 }
 
 bool commandManager::kick(vector<string> parameters) {
+    
+    //Check that there is a channel and a user to perform the operation on
     if(parameters.size() == 2) {
-        string targetClient = parameters.at(0);
-        string message = parameters.at(1);
+        
+        string targetChannel = parameters.at(0);
+        string targetClient = parameters.at(1);
 
-        int index = checkForUser(targetClient);
-        if(index != -1) {
-            chatClientUsers->at(index)->socketConnection->sendString(message);
-            chatClientUsers->at(index)->socketConnection->sendString("QUIT");
-            chatClientUsers->at(index)->socketConnection->closeSocket();
+        int channelIndex = -1;
+
+        //Check that the channel exist or not
+        if(checkForChannel(targetChannel, channelIndex)) {
+
+            //Find out if the user is a part of the channel or not
+            User* userInQuestion = channels->at(channelIndex)->getUser(targetClient);
+            if(userInQuestion != nullptr) {
+                channels->at(channelIndex)->removeUser(targetClient);
+            } else {
+                clientUser->socketConnection->sendString("User is not in channel");
+            }
         } else {
-            clientUser->socketConnection->sendString("User does not exist");
+            clientUser->socketConnection->sendString("Channel does not exist");
         }
-    } else {
-        clientUser->socketConnection->sendString("Invalid number of parameters");
     }
 
     return true;
 }
-bool commandManager::kill() {
-    cout << "Kill() command called" << endl;
+bool commandManager::kill(vector<string> parameters) {
+        
+    //Make sure we have both a client to kill and a message to send
+    if(parameters.size() == 2) {
+
+        string targetClient = parameters.at(0);
+        string message = parameters.at(1);
+
+        //Check if user exist. default is -1 for non exisint clients
+        int index = checkForUser(targetClient);
+
+        //Send the message of why the user is being killed. Then force them to QUIT
+        if(index != -1) {
+            chatClientUsers->at(index)->socketConnection->sendString(message);
+            chatClientUsers->at(index)->socketConnection->sendString("QUIT");
+            //chatClientUsers->at(index)->socketConnection->closeSocket();
+        } else {
+        clientUser->socketConnection->sendString("User does not exist");
+        }
+    } 
+    else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
+
+    return true;
 
 }
+
 bool commandManager::knock() {
     cout << "Knock() command called" << endl;
 
