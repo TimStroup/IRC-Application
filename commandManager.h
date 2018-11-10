@@ -11,7 +11,8 @@ class commandManager
     User* clientUser;
     vector<User*>* chatClientUsers;
     vector<channel*>* channels;
-    commandManager(User* user, vector<User*>* chatClientUsers, vector<channel*>* activeUsers);
+    string dbPath;
+    commandManager(User* user, vector<User*>* chatClientUsers, vector<channel*>* activeUsers,string dbPath);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:

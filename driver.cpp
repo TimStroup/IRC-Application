@@ -36,7 +36,7 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     chatClientUsers.push_back(&clientUser);
 
     //Create Command Manager for this cclient to handle the incoming messages/commands
-    commandManager commandManager1(&clientUser, &chatClientUsers, &channels);
+    commandManager commandManager1(&clientUser, &chatClientUsers, &channels, dbFile);
     
     //Variable Allocations
     string msg;
