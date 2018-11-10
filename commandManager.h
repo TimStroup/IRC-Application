@@ -125,7 +125,7 @@ class commandManager
         Syntax: NOTICE <msgtarget> <message>
         This command works similarly to PRIVMSG, except automatic replies must never be sent in reply to NOTICE messages.
         */
-    bool notice();
+    bool notice(vector<string>);
 
     /*
         Syntax: PART <channels> [<message>]
@@ -162,7 +162,7 @@ class commandManager
         Syntax: PRIVMSG <msgtarget> <message>
         Sends <message> to <msgtarget>, which is usually a user or channel
         */
-    bool privmsg(vector<string>);
+    bool privmsg(vector<string>, bool);
 
     /*
         Syntax: QUIT [<message>]

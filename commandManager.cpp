@@ -65,7 +65,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::nick(messageParameters);
     }
     else if(commandString == "NOTICE") {
-        return commandManager::notice();
+        return commandManager::notice(messageParameters);
     }
     else if(commandString == "PART") {
         return commandManager::part();
@@ -83,7 +83,7 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::pong();
     }
     else if(commandString == "PRIVMSG") {
-        return commandManager::privmsg(messageParameters);
+        return commandManager::privmsg(messageParameters, false);
     }
     else if(commandString == "QUIT") {
         return commandManager::quit(messageParameters);
@@ -461,9 +461,16 @@ bool commandManager::nick(vector<string> parameters) {
     return true;
 
 }
-bool commandManager::notice() {
-    cout << "Notice() command called" << endl;
+bool commandManager::notice(vector<string> messageParameters) {
 
+    //Check if there is a user and a message to be passed in
+    if(messageParameters.size() == 2) {
+        messageParameters.at(1).insert(0, "[NOTICE]: ");
+        commandManager::privmsg(messageParameters, true);
+    } else {
+        clientUser->socketConnection->sendString("Invalid number of paramters");
+    }
+    return true;
 }
 bool commandManager::part() {
     cout << "Part() command called" << endl;
@@ -485,10 +492,10 @@ bool commandManager::pong() {
     clientUser->socketConnection->sendString("Pong");
 
 }
-bool commandManager::privmsg(vector<string>messageParameters) {
+bool commandManager::privmsg(vector<string>messageParameters, bool isNotice) {
     
     //Check if there is both a User/Channel to send to, and a message to send, thus size = 2
-    if(messageParameters.size() >= 2) {
+    if(messageParameters.size() == 2) {
         string targetClient = messageParameters.at(0);
         string msg = messageParameters.at(1);
 
@@ -528,7 +535,7 @@ bool commandManager::privmsg(vector<string>messageParameters) {
                 targetSocket.sendString(finalMessage);
             
                 //If the user is away, reply automatically with their away message
-                if(chatClientUsers->at(index)->getAwayStatus() == true) {
+                if(chatClientUsers->at(index)->getAwayStatus() == true && isNotice == false) {
                     string awayMessage = "User is away: " + chatClientUsers->at(index)->getAwayMessage();
                     clientUser->getTcpUserSocket().sendString(awayMessage);
                 } else {
