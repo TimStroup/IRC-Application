@@ -9,7 +9,7 @@
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "tcpUserSocket.cpp", "tcpServerSocket.cpp", "driver.cpp","channel.cpp","Parsing.cpp","commandManager.cpp","User.cpp", "-pthread", "-o", "server.out", "&&",
+                "-g", "tcpUserSocket.cpp", "tcpServerSocket.cpp", "driver.cpp","channel.cpp","Parsing.cpp","commandManager.cpp","User.cpp","inputParser.cpp", "-pthread", "-o", "server.out", "&&",
                 "g++","-g", "chatClient.cpp", "tcpUserSocket.cpp", "inputParser.cpp", "-pthread", "-o", "client.out"
             ],
             "group": {

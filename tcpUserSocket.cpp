@@ -14,7 +14,7 @@ cs457::tcpUserSocket::tcpUserSocket(const string srvrAddress, int port)
     tcpUserSocket::serverAddress.sin_family = AF_INET;
     tcpUserSocket::serverAddress.sin_port = htons(port);
 
-    cout << inet_pton(AF_INET,"127.0.0.1",&tcpUserSocket::serverAddress.sin_addr) << endl;
+    cout << inet_pton(AF_INET,srvrAddress.c_str(),&tcpUserSocket::serverAddress.sin_addr) << endl;
 };
 
 cs457::tcpUserSocket::tcpUserSocket(){

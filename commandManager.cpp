@@ -8,10 +8,11 @@
 
 using namespace std;
 
-commandManager::commandManager(User* clientUser1, vector<User*>* chatClientUsers1, vector<channel*> *channels) {
+commandManager::commandManager(User* clientUser1, vector<User*>* chatClientUsers1, vector<channel*> *channels,string dbPath) {
     commandManager::clientUser = clientUser1;
     commandManager::chatClientUsers = chatClientUsers1;
     commandManager::channels = channels;
+    commandManager::dbPath = dbPath;
 }
 
 bool commandManager::handleCommand(const string &command, vector<string> parameters) {
@@ -128,6 +129,12 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
     }
     else if(commandString == "WHOIS") {
         return commandManager::whois();
+    }
+    else if(commandString == "LOGIN"){
+        commandManager::login(messageParameters);
+    }
+    else if(commandString == "REGISTER"){
+        commandManager::registerUser(messageParameters);
     }
     else {
         clientUser->socketConnection->sendString("Command does not exist");
@@ -556,6 +563,19 @@ bool commandManager::who() {
 bool commandManager::whois() {
     cout << "Whois() command called" << endl;
 
+}
+
+bool commandManager::login(vector<string> messageParameters){
+    if(messageParameters.size() < 2){
+        clientUser->socketConnection->sendString("Must provide nickname and password: if no password use @");
+        return true;
+    }
+
+
+}
+
+bool commandManager::registerUser(vector<string> messageParameters){
+    
 }
 
 //SUPPORT FUNCTIONS

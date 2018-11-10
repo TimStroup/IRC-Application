@@ -4,17 +4,27 @@
 #include <thread> 
 #include <vector> 
 #include <memory> 
+#include <fstream>
+#include <istream>
+#include <sstream>
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
 #include "commandManager.h"
 #include "User.h"
 #include "channel.h"
+#include "inputParser.cpp"
+
+
 
 using namespace std;
 
 bool ready = true; 
 vector<User*> chatClientUsers;
 vector<channel*> channels;
+vector<string> additionalPorts;
+string inputPort = "";
+string configFile = "conf/chatserver.conf";
+string dbFile = "db/";
 
 int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
 {
@@ -26,7 +36,7 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     chatClientUsers.push_back(&clientUser);
 
     //Create Command Manager for this cclient to handle the incoming messages/commands
-    commandManager commandManager1(&clientUser, &chatClientUsers, &channels);
+    commandManager commandManager1(&clientUser, &chatClientUsers, &channels, dbFile);
     
     //Variable Allocations
     string msg;
@@ -68,12 +78,54 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     return 1; 
 }
 
+void parseConfigFile(){
+    const char* file = configFile.c_str();
+    ifstream fileInput(file,ifstream::in);
+    string line;
+   
+    while(getline(fileInput,line)){
+        string value;
+        vector<string> configs;
+        istringstream tokens(line);
+        while(getline(tokens,value,' ')){
+            configs.push_back(value);
+        }
+        if(configs.at(0) == "port"){
+            inputPort = configs.at(1);            
+        }
+        else if(configs.at(0) == "dbpath"){
+            dbFile = configs.at(1);
+        }
+        else if(configs.at(0) == "additional_ports"){
+            string port;
+            istringstream ports(configs.at(1));
+            while(getline(ports,port,',')){
+                additionalPorts.push_back(port);
+            }
+        }
+    }
+    
+}
+
+void setOptions(InputParser input){
+
+    if(input.cmdOptionExists("-port")){
+       inputPort = input.getCmdOption("-port");
+    }
+    if(input.cmdOptionExists("-configuration")){
+        configFile = input.getCmdOption("-configuration");
+    }
+    if(input.cmdOptionExists("-db")){
+        dbFile = input.getCmdOption("-db");
+    }
+}
+
 void acceptConnections() {
     cout << "Initializing Socket" << std::endl; 
-    cs457::tcpServerSocket mysocket(2000);
+    cs457::tcpServerSocket mysocket(stoi(inputPort));
     cout << "Binding Socket" << std::endl; 
     mysocket.bindSocket();
-    cout << "Waiting to Accept Socket" << std::endl;
+    cout << "Waiting to Accept Socket on: " + inputPort << std::endl;
     mysocket.listenSocket();
 
     int id = 0;
@@ -97,16 +149,11 @@ void acceptConnections() {
 
 int main(int argc, char * argv[])
 {
-    //cout << "Initializing Socket" << std::endl; 
-    //cs457::tcpServerSocket mysocket(2000);
-    //cout << "Binding Socket" << std::endl; 
-    //mysocket.bindSocket(); 
-    //cout << "Listening Socket" << std::endl; 
-    //mysocket.listenSocket(); 
-    //cout << "Waiting to Accept Socket" << std::endl;
-    //int id = 0; 
-    //vector<unique_ptr<thread>> threadList; 
-  
+    InputParser input(argc,argv);
+
+    setOptions(input);
+    parseConfigFile();
+
     thread acceptThread(acceptConnections);
     
     while(true) {

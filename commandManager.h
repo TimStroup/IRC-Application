@@ -11,7 +11,8 @@ class commandManager
     User* clientUser;
     vector<User*>* chatClientUsers;
     vector<channel*>* channels;
-    commandManager(User* user, vector<User*>* chatClientUsers, vector<channel*>* activeUsers);
+    string dbPath;
+    commandManager(User* user, vector<User*>* chatClientUsers, vector<channel*>* activeUsers,string dbPath);
     bool handleCommand(const string &command, vector<string> paramaters);
 
   private:
@@ -266,6 +267,10 @@ class commandManager
          If <server> is given, the command is forwarded to it for processing.
         */
     bool whois();
+
+    bool login(vector<string>);
+
+    bool registerUser(vector<string>);
 
     //SUPPORT FUNCTIONS
 

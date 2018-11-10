@@ -43,6 +43,10 @@ void chatClient::setCmdFields(InputParser input) {
 
 }
 
+int chatClient::getPort(){
+    return chatClient::port;
+}
+
 void switchChannelListening(string message){
     bool channelExists = false;
     for(auto channel : channels){
@@ -119,7 +123,7 @@ int main(int argc, char **argv){
     chatClient chatClient1;
     chatClient1.setCmdFields(input);
     const string &filename = input.getCmdOption("-f");
-    cs457::tcpUserSocket *socket = new cs457::tcpUserSocket("127.0.0.1",2000);
+    cs457::tcpUserSocket *socket = new cs457::tcpUserSocket("127.0.0.1",chatClient1.getPort());
     //shared_ptr<cs457::tcpUserSocket> socket (new cs457::tcpUserSocket("127.0.0.1",2000));
     int ready = 1;
     cout << socket->connectToServer() << endl;
