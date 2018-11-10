@@ -52,6 +52,14 @@ bool User::checkPass(const string passAttempt){
     }
 }
 
+User::Level User::getLevel(){
+    return User::accountLevel;
+}
+
+void User::setLevel(User::Level newLevel){
+    User::accountLevel = newLevel;
+}
+
 
 
 

@@ -2,6 +2,7 @@
 #include <time.h>
 #include "Parsing.h"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "channel.h"
 #include "User.h"
@@ -663,15 +664,104 @@ bool commandManager::whois() {
 }
 
 bool commandManager::login(vector<string> messageParameters){
-    if(messageParameters.size() < 2){
-        clientUser->socketConnection->sendString("Must provide nickname and password: if no password use @");
+    if(messageParameters.size() < 1){
+        clientUser->socketConnection->sendString("Must provide at least nickname to login, nickname and password if the account is password protected");
         return true;
     }
 
+    string loginNickname = messageParameters.at(0);
+    string loginPassword;
+    string level = "";
+    string banned = "";
+    bool success = false;
+    if(messageParameters.size() == 1){
+        loginPassword = '@';
+    }
+    else{
+        loginPassword = messageParameters.at(1);
+    }
+
+    ifstream fileIn((dbPath + "users.txt"));
+    string line;
+    while(getline(fileIn,line)){
+        string userName;
+        stringstream fileLine(line);
+        getline(fileLine,userName,' ');
+        if(loginNickname == userName){
+            string password;
+            getline(fileLine,password,' ');
+            if(password == loginPassword){
+                success = true;
+                getline(fileLine,level,' ');
+                getline(fileLine,banned,' ');
+            }
+        }
+    }
+    if(success){
+        if(level == "ADMIN"){
+            clientUser->setLevel(User::Level::ADMIN);
+        }
+        else if(level == "SYSOP"){
+            clientUser->setLevel(User::Level::SYSOP);
+        }
+        else if(level == "CHANNELOP"){
+            clientUser->setLevel(User::Level::CHANNELOP);
+        }
+        else{
+            clientUser->setLevel(User::Level::USER);
+        }
+
+        clientUser->setNick(loginNickname);
+
+        clientUser->socketConnection->sendString("Succesfully logged in to account with nickname: " + loginNickname);
+    }
+    else{
+        clientUser->socketConnection->sendString("Failed to validate with account nickname: " + loginNickname + " and Password: " + loginPassword);
+    }
 
 }
 
 bool commandManager::registerUser(vector<string> messageParameters){
+    string loginNickname = "";
+    string loginPassword = "@";
+
+    if(messageParameters.size() < 1){
+        clientUser->socketConnection->sendString("Must provide at least nickname to register, nickname and password if you want the account to be password protected");
+        return true;
+    }
+
+    loginNickname = messageParameters.at(0);
+    if(messageParameters.size() >= 2){
+        loginPassword = messageParameters.at(1);
+    }
+
+    ifstream fileIn((dbPath + "users.txt"));
+    string line;
+    while(getline(fileIn,line)){
+        string userName;
+        stringstream fileLine(line);
+        getline(fileLine,userName,' ');
+        if(loginNickname == userName){
+            clientUser->socketConnection->sendString("User already exists with nickname: " + loginNickname + " try another");
+            return true;
+        }
+    }
+    fileIn.close();
+    //otherwise the file did not contain a matching nickname and one can now be created by appending to the end of the file
+    ofstream addUser((dbPath + "users.txt"),ios::app);
+    addUser << loginNickname + " " + loginPassword + " " + "USER" + " " + "false" + "\n";
+    if(loginPassword == "@"){
+        clientUser->socketConnection->sendString("Succesfully registerd account with Nickname: " + loginNickname + " and no Password");
+
+    }
+    else{
+        clientUser->socketConnection->sendString("Succesfully registerd account with Nickname: " + loginNickname + " and Password: " + loginPassword);
+
+    }
+
+
+
+
     
 }
 
