@@ -16,6 +16,7 @@ class channel
     void removeUser(string nickName);
     void sendMessage(string message);
     User* getUser(string nickName);
+    int getSize();
 
     private:
     string name;

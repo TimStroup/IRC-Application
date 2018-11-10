@@ -9,6 +9,8 @@ using namespace std;
 
 vector<string> channels;
 string listeningChannel;
+int ready = 1;
+
 
 string status = "";
 
@@ -94,29 +96,37 @@ string channel = "";
     }
 }
 
-void responseParser(string msg){
+bool responseParser(string msg){
     if(msg == "QUIT") {
-        status = "QUIT";
+        ready = 0;
+        return false;
+        
     }
     else if(msg.at(1) == '#' || msg.at(1) == '&'){
         getChannelMessage(msg);
+        return true;
     }
     else if(msg.substr(0,8) == "success:"){
         addNewChannel(msg);
+        return true;
     } 
     else {
         cout << msg << endl;
+        return true;
     }
 }
 
 void receiveMessages(cs457::tcpUserSocket* tcpUserSocket) {
     ssize_t val;
 
-    while(status != "QUIT") {
+    bool cont = true;
+    while(cont) {
         string msg;
         tie(msg,val) = tcpUserSocket->recvString();
-        responseParser(msg);
+        cont = responseParser(msg);
     }
+
+    tcpUserSocket->sendString("QUIT");
 }
 int main(int argc, char **argv){
     InputParser input(argc, argv);
@@ -125,7 +135,6 @@ int main(int argc, char **argv){
     const string &filename = input.getCmdOption("-f");
     cs457::tcpUserSocket *socket = new cs457::tcpUserSocket("127.0.0.1",chatClient1.getPort());
     //shared_ptr<cs457::tcpUserSocket> socket (new cs457::tcpUserSocket("127.0.0.1",2000));
-    int ready = 1;
     cout << socket->connectToServer() << endl;
     
     string message;

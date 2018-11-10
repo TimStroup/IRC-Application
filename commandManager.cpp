@@ -47,10 +47,10 @@ bool commandManager::handleCommand(const string &command, vector<string> paramet
         return commandManager::join(messageParameters);
     }
     else if(commandString == "KICK") {
-        return commandManager::kick();
+        return commandManager::kick(messageParameters);
     }
     else if(commandString == "KILL") {
-        return commandManager::kill();
+        return commandManager::kill(messageParameters);
     }
     else if(commandString == "KNOCK") {
         return commandManager::knock();
@@ -310,65 +310,109 @@ bool commandManager::join(vector<string> parameters) {
     return true;
 }
 
-bool commandManager::userInChannel(channel* channel){
-    if(channel->getUser(clientUser->getNick()) == nullptr){
-        return false;
+bool commandManager::kick(vector<string> parameters) {
+    
+    //Check that there is a channel and a user to perform the operation on
+    if(parameters.size() == 2) {
+        
+        string targetChannel = parameters.at(0);
+        string targetClient = parameters.at(1);
+
+        int channelIndex = -1;
+
+        //Check that the channel exist or not
+        if(checkForChannel(targetChannel, channelIndex)) {
+
+            //Find out if the user is a part of the channel or not
+            User* userInQuestion = channels->at(channelIndex)->getUser(targetClient);
+            if(userInQuestion != nullptr) {
+                channels->at(channelIndex)->removeUser(targetClient);
+            } else {
+                clientUser->socketConnection->sendString("User is not in channel");
+            }
+        } else {
+            clientUser->socketConnection->sendString("Channel does not exist");
+        }
     }
-    else{
-        return true;
-    }
+
+    return true;
 }
-bool commandManager::kick() {
-    cout << "Kick() command called" << endl;
+bool commandManager::kill(vector<string> parameters) {
+        
+    //Make sure we have both a client to kill and a message to send
+    if(parameters.size() == 2) {
+
+        string targetClient = parameters.at(0);
+        string message = parameters.at(1);
+
+        //Check if user exist. default is -1 for non exisint clients
+        int index = checkForUser(targetClient);
+
+        //Send the message of why the user is being killed. Then force them to QUIT
+        if(index != -1) {
+            chatClientUsers->at(index)->socketConnection->sendString(message);
+            chatClientUsers->at(index)->socketConnection->sendString("QUIT");
+            //chatClientUsers->at(index)->socketConnection->closeSocket();
+        } else {
+        clientUser->socketConnection->sendString("User does not exist");
+        }
+    } 
+    else {
+        clientUser->socketConnection->sendString("Invalid number of parameters");
+    }
+
+    return true;
 
 }
-bool commandManager::kill() {
-    cout << "Kill() command called" << endl;
 
-}
 bool commandManager::knock() {
     cout << "Knock() command called" << endl;
 
 }
 bool commandManager::list(vector<string> parameters) {
-    //If parameter size == 0, LIST was passed in without channel names,
-    // so just print out all the current channels
-    if(parameters.size() == 0) {
-        string channelList;
-        for(int i = 0; i < channels->size(); i++) {
-            channelList += channels->at(i)->getName() + ",";
-        }
-        channelList.pop_back(); //Removes trailing comma
-        clientUser->socketConnection->sendString("Current Channels are: " + channelList);
-    } 
-    //Else, if parameter size == 1, a comma separated string containing channel
-    // names were passed. Parse through the string and return the topic of each
-    // of the specified channels
-    else if(parameters.size() == 1) {
-        
-        vector<string> channelList;
 
-        channelList = parseCommaList(parameters.at(0));
-        
-        string topicList;
-        int channelIndex;
-
-        //For each of the channels in the passed in string, check if they exist or not.
-        //If they do, grab their topic, and add it to the response string
-        for(int i = 0; i < channelList.size(); i++) {
-            if(checkForChannel(channelList.at(i), channelIndex)) {
-                string tempString = "Channel [" + channelList.at(i) + "] topic is: " + channels->at(channelIndex)->getTopic() + ",";
-                topicList += tempString;
+    if(channels->size() != 0) {
+        //If parameter size == 0, LIST was passed in without channel names,
+        // so just print out all the current channels
+        if(parameters.size() == 0) {
+            string channelList;
+            for(int i = 0; i < channels->size(); i++) {
+                channelList += channels->at(i)->getName() + ",";
             }
+            channelList.pop_back(); //Removes trailing comma
+            clientUser->socketConnection->sendString("Current Channels are: " + channelList);
+        } 
+        //Else, if parameter size == 1, a comma separated string containing channel
+        // names were passed. Parse through the string and return the topic of each
+        // of the specified channels
+        else if(parameters.size() == 1) {
+        
+            vector<string> channelList;
+
+            channelList = parseCommaList(parameters.at(0));
+        
+            string topicList;
+            int channelIndex;
+
+            //For each of the channels in the passed in string, check if they exist or not.
+            //If they do, grab their topic, and add it to the response string
+            for(int i = 0; i < channelList.size(); i++) {
+                if(checkForChannel(channelList.at(i), channelIndex)) {
+                    string tempString = "Channel [" + channelList.at(i) + "] topic is: " + channels->at(channelIndex)->getTopic() + ",";
+                    topicList += tempString;
+                }
+            }
+
+            topicList.pop_back(); //Removes trailing comma
+
+            clientUser->socketConnection->sendString(topicList);
+        }  
+        //Else, the wrong number of parameters were passed in.
+        else {
+            clientUser->socketConnection->sendString("Invalid number of parameters");
         }
-
-        topicList.pop_back(); //Removes trailing comma
-
-        clientUser->socketConnection->sendString(topicList);
-    }  
-    //Else, the wrong number of parameters were passed in.
-    else {
-        clientUser->socketConnection->sendString("Invalid number of parameters");
+    } else {
+        clientUser->socketConnection->sendString("There are no channels currently");
     }
     
     return true;
@@ -614,3 +658,11 @@ int commandManager::checkForUser(string user) {
     return index;
 }
 
+bool commandManager::userInChannel(channel* channel){
+    if(channel->getUser(clientUser->getNick()) == nullptr){
+        return false;
+    }
+    else{
+        return true;
+    }
+}

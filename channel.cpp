@@ -28,6 +28,10 @@ void channel::addUser(User *user){
     channel::channelParticipants.push_back(user);
 };
 
+int channel::getSize() {
+    return channel::channelParticipants.size();
+}
+
 User* channel::getUser(string nickName){
     int index = -1;
     for(int i = 0; i < channelParticipants.size();i++){

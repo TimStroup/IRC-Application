@@ -82,13 +82,13 @@ class commandManager
         Syntax: KICK <channel> <client> [<message>]
         Forcibly removes <client> from <channel>.This command may only be issued by channel operators.
         */
-    bool kick();
+    bool kick(vector<string>);
 
     /*
         Syntax: KILL <client> <comment>
         Forcibly removes <client> from the network. This command may only be issued by IRC operators. 
         */
-    bool kill();
+    bool kill(vector<string>);
 
     /*
         Syntax: KNOCK <channel> [<message>]
