@@ -1,0 +1,22 @@
+Join #coolStuff badPassword
+privmsg #coolStuff : can create password protected channels
+privmsg #coolStuff :initial nickname is auto generated to guest#
+Nick Tim
+Join #foco
+privmsg #foco :Now I have changed my nickname
+Join #CUBoulder
+privmsg #foco :This will not show up on the screen because I am listening to #CUBoulder
+privmsg #CUBoulder :This will show
+SWITCH #foco
+privmsg #foco :the switch command changes the channel I am listeng to now this shows
+login Trey examplePassword
+privmsg #foco :now My nickname is changed
+topic #foco :Go Rams!
+topic #foco
+topic #CUBoulder :F@*# the buffs
+topic #CUBoulder
+list
+list #foco,CUBoulder
+time
+ping
+QUIT

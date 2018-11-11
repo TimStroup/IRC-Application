@@ -1,6 +1,7 @@
 #include "chatClient.h"
 #include "tcpUserSocket.h"
 #include <iostream>
+#include <fstream>
 #include <errno.h>
 #include <thread>
 #include <string>
@@ -10,7 +11,6 @@ using namespace std;
 vector<string> channels;
 string listeningChannel;
 int ready = 1;
-
 
 string status = "";
 
@@ -47,6 +47,10 @@ void chatClient::setCmdFields(InputParser input) {
 
 int chatClient::getPort(){
     return chatClient::port;
+}
+
+string chatClient::getTestFile(){
+    return chatClient::testFile;
 }
 
 void switchChannelListening(string message){
@@ -135,34 +139,45 @@ int main(int argc, char **argv){
     const string &filename = input.getCmdOption("-f");
     cs457::tcpUserSocket *socket = new cs457::tcpUserSocket("127.0.0.1",chatClient1.getPort());
     //shared_ptr<cs457::tcpUserSocket> socket (new cs457::tcpUserSocket("127.0.0.1",2000));
-    cout << socket->connectToServer() << endl;
+    socket->connectToServer();
     
     string message;
     string recvMessage;
     ssize_t val;
     
     thread readThread(receiveMessages,socket);
-    
-    while(ready == 1){
-        getline(cin, message);
-        //string string(message);
-        if(message == "QUIT") {
-            ready = 0;
-            socket->sendString(message,true);
-        }
-        else if(message.substr(0,6) == "SWITCH"){
-            switchChannelListening(message.substr(6,message.length()));
-        } 
+    if(chatClient1.getTestFile() == ""){
+        while(ready == 1){
+            getline(cin, message);
+            //string string(message);
+            if(message == "QUIT") {
+                ready = 0;
+                socket->sendString(message,true);
+            }
+            else if(message.substr(0,6) == "SWITCH"){
+                switchChannelListening(message.substr(6,message.length()));
+            } 
         
-        else {
-            socket->sendString(message,true);
+            else {
+                socket->sendString(message,true);
+            }
+            //tie(recvMessage,val) = socket->recvString();
+            //if(recvMessage == "QUIT") {
+            //    ready = 0;
+            //} else {
+            //    cout << recvMessage << endl;
+            //}
         }
-        //tie(recvMessage,val) = socket->recvString();
-        //if(recvMessage == "QUIT") {
-        //    ready = 0;
-        //} else {
-        //    cout << recvMessage << endl;
-        //}
+    }
+    else{
+        ifstream testFileIn(chatClient1.getTestFile());
+        string command;
+        while(getline(testFileIn,command)){
+            cout << "next Command is: " + command + '\n';
+            sleep(2);
+            socket->sendString(command,true);
+        }
+
     }
     
     readThread.join();
