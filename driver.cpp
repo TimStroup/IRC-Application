@@ -35,6 +35,11 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     //Add this client to the Server's vector of clients
     chatClientUsers.push_back(&clientUser);
 
+    ifstream helpFile(dbFile + "banner.txt");
+    string line;
+    while(getline(helpFile,line)){
+        clientUser.socketConnection->sendString(line);
+    }
     //Create Command Manager for this cclient to handle the incoming messages/commands
     commandManager commandManager1(&clientUser, &chatClientUsers, &channels, dbFile);
     
@@ -77,6 +82,7 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket, int id)
     cout << "I closed the socket" << endl;
     return 1; 
 }
+
 
 void parseConfigFile(){
     const char* file = configFile.c_str();

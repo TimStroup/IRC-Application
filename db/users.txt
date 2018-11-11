@@ -1,3 +1,2 @@
-Tim TreySucks168 ADMIN false
-Trey TimSucks168 USER false
-Grace youBothSuck USER false
+Jim goodPassword ADMIN false
+Trey examplePassword USER false

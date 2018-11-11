@@ -9,12 +9,11 @@ using namespace std;
 cs457::tcpUserSocket::tcpUserSocket(const string srvrAddress, int port) 
 {
     tcpUserSocket::userSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-    cout << userSocket << endl;
     memset(&(tcpUserSocket::serverAddress),'0',sizeof(tcpUserSocket::serverAddress));
     tcpUserSocket::serverAddress.sin_family = AF_INET;
     tcpUserSocket::serverAddress.sin_port = htons(port);
 
-    cout << inet_pton(AF_INET,srvrAddress.c_str(),&tcpUserSocket::serverAddress.sin_addr) << endl;
+    inet_pton(AF_INET,srvrAddress.c_str(),&tcpUserSocket::serverAddress.sin_addr);
 };
 
 cs457::tcpUserSocket::tcpUserSocket(){

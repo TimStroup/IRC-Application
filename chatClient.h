@@ -14,6 +14,7 @@ using namespace std;
         int getPort();
         void setCmdFields(InputParser input);
         void receiveMessages(cs457::tcpUserSocket*);
+        string getTestFile();
         const string& getNickname();
 
     private:
@@ -21,7 +22,7 @@ using namespace std;
         string nickname;
         int port = 5437;
         string confFile;
-        string testFile;
+        string testFile = "";
         string logFile;
         string password;
 
