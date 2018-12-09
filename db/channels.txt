@@ -1,0 +1,5 @@
+general
+csu
+foco
+rams
+1337
