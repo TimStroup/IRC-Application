@@ -1,5 +1,6 @@
 #include "chatClient.h"
 #include "tcpUserSocket.h"
+#include "channelBuffer.h"
 #include <iostream>
 #include <fstream>
 #include <errno.h>
@@ -9,6 +10,7 @@
 using namespace std;
 
 vector<string> channels;
+vector<channelBuffer*> buffers;
 string listeningChannel;
 int ready = 1;
 
@@ -59,6 +61,11 @@ void switchChannelListening(string message){
         if(message.substr(1,message.length()) == channel){
             listeningChannel = channel;
             cout << "Now listening to channel: " + channel << endl;
+            for(channelBuffer *buffer: buffers){
+                if(buffer->name == channel){
+                    buffer->dumpMessages();
+                }
+            }
             channelExists = true;
             break;
         }
@@ -81,6 +88,7 @@ void addNewChannel(string msg){
     }
     listeningChannel = channel;
     channels.push_back(channel);
+    buffers.push_back(new channelBuffer(channel));
     cout << msg << endl;
     cout << "now listening to channel: " + channel << endl;
 }
@@ -96,7 +104,15 @@ string channel = "";
         }
     }
     if(channel == listeningChannel){
+        //change this to add to the buffer of heard messages and print out the message
         cout << msg << endl;
+    }
+    else{
+        for(channelBuffer *buffer: buffers){
+            if(buffer->name == channel){
+                buffer->addMessage(msg);
+            }
+        }
     }
 }
 
