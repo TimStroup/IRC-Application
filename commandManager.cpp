@@ -534,6 +534,7 @@ bool commandManager::privmsg(vector<string>messageParameters, bool isNotice) {
                 cs457::tcpUserSocket& targetSocket = chatClientUsers->at(index)->getTcpUserSocket();
                 string finalMessage = "[" + clientUser->getNick() + "]: " + msg; 
                 targetSocket.sendString(finalMessage);
+                clientUser->socketConnection->sendString(finalMessage);
             
                 //If the user is away, reply automatically with their away message
                 if(chatClientUsers->at(index)->getAwayStatus() == true && isNotice == false) {
