@@ -153,12 +153,23 @@ void acceptConnections() {
     }
 }
 
+void persistantChannels(){
+    const char* file = "db/channels.txt";
+    ifstream fileInput(file,ifstream::in);
+    string line;
+   
+    while(getline(fileInput,line)){
+        channels.push_back(new channel("&" +line,""));
+    }
+}
+
 int main(int argc, char * argv[])
 {
     InputParser input(argc,argv);
 
     setOptions(input);
     parseConfigFile();
+    persistantChannels();
 
     thread acceptThread(acceptConnections);
     
