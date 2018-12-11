@@ -185,6 +185,7 @@ bool commandManager::invite(vector<string> parameters) {
                                     parameters.at(1) +
                                     " by " + clientUser->getNick();
                 chatClientUsers->at(index)->socketConnection->sendString(sendString);
+                clientUser->socketConnection->sendString("Invitiation Sent to: " + parameters.at(0));
             } else {
                 clientUser->socketConnection->sendString("Improper format for Channel");
             }
@@ -459,6 +460,7 @@ bool commandManager::mode() {
 }
 bool commandManager::nick(vector<string> parameters) {
     clientUser->setNick(parameters.at(0));
+    clientUser->socketConnection->sendString("Now using Nick: " + parameters.at(0));
     return true;
 
 }

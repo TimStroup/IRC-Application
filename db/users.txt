@@ -1,2 +1,4 @@
 Jim goodPassword ADMIN false
 Trey examplePassword USER false
+Tim anyPassword USER false
+Tims anyPassword USER false
